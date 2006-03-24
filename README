@@ -1,0 +1,22 @@
+blahtex version 0.4.4  --  README file
+======================================
+
+
+Blahtex is licensed under the GNU General Public License.
+See the file "GNU-GPL" and the source code for more details.
+
+
+For more information, troubleshooting, bug reports, manual, ....
+
+   http://www.blahtex.org/
+
+
+
+Brief build instructions (more details in the manual): run one of
+
+  make linux
+  make mac  
+
+
+------------
+David Harvey
