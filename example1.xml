@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<equations xmlns:b="http://gva.noekeon.org/blahtexml">
+    <equation b:inline="x+y"/>
+    <equation b:block="\exp(-\gamma x)"/>
+</equations>

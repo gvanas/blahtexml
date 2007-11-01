@@ -4,6 +4,9 @@
 // a TeX to MathML converter designed with MediaWiki in mind
 // Copyright (C) 2006, David Harvey
 //
+// blahtexml = XML input for blahtex (version 0.4.4)
+// Copyright (C) 2007, Gilles Van Assche
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
@@ -45,6 +48,15 @@ wstring Interface::GetPurifiedTex()
 {
     return mManager->GeneratePurifiedTex(mPurifiedTexOptions);
 }
+
+#ifdef BLAHTEXML_USING_XERCES
+void Interface::PrintAsSAX2(ContentHandler& sax, const wstring& prefix, bool ignoreFirstmrow) const
+{
+    wostringstream output;
+    auto_ptr<MathmlNode> root = mManager->GenerateMathml(mMathmlOptions);
+    root->PrintAsSAX2(sax, prefix, ignoreFirstmrow);
+}
+#endif
 
 }
 

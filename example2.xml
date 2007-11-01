@@ -1,0 +1,5 @@
+<root xmlns:b="http://gva.noekeon.org/blahtexml">
+    <math xmlns="http://www.w3.org/1998/Math/MathML">
+        <msqrt b:m="x+y"/>
+    </math>
+</root>

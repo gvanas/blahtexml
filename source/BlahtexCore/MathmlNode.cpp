@@ -4,6 +4,9 @@
 // a TeX to MathML converter designed with MediaWiki in mind
 // Copyright (C) 2006, David Harvey
 //
+// blahtexml = XML input for blahtex (version 0.4.4)
+// Copyright (C) 2007, Gilles Van Assche
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
@@ -23,6 +26,12 @@
 #include <stdexcept>
 #include "MathmlNode.h"
 #include "XmlEncode.h"
+
+#ifdef BLAHTEXML_USING_XERCES
+#include <xercesc/util/XMLString.hpp>
+#include "../BlahtexXMLin/AttributesImpl.h"
+#include "../BlahtexXMLin/XercesString.h"
+#endif
 
 using namespace std;
 
@@ -155,8 +164,6 @@ void WriteIndent(
         os << L"  ";
 }
 
-void MathmlNode::PrintType(wostream& os) const
-{
     static wstring gTypeArray[] =
     {
         L"mi",
@@ -181,14 +188,14 @@ void MathmlNode::PrintType(wostream& os) const
         L"mpadded"
     };
     
+void MathmlNode::PrintType(wostream& os) const
+{
     if (mType < 0 || mType >= sizeof(gTypeArray))
         throw logic_error("Illegal node type in MathmlNode::PrintType");
     
     os << gTypeArray[mType];
 }
 
-void MathmlNode::PrintAttributes(wostream& os) const
-{
     static wstring gAttributeArray[] =
     {
         L"displaystyle",
@@ -212,6 +219,8 @@ void MathmlNode::PrintAttributes(wostream& os) const
         L"fontweight"
     };
     
+void MathmlNode::PrintAttributes(wostream& os) const
+{
     for (map<Attribute, wstring>::const_iterator
         attribute = mAttributes.begin();
         attribute != mAttributes.end();
@@ -277,6 +286,44 @@ void MathmlNode::Print(
     if (indent)
         os << endl;
 }
+
+#ifdef BLAHTEXML_USING_XERCES
+void MathmlNode::PrintAsSAX2(ContentHandler& sax, const wstring& prefix, bool ignoreFirstmrow) const
+{
+    if (mType < 0 || mType >= sizeof(gTypeArray))
+        throw logic_error("Illegal node type in MathmlNode::PrintType");
+    bool skipElement = ignoreFirstmrow && (mType == cTypeMrow) && (mAttributes.size() == 0) && (mText.empty());
+    if (skipElement) {
+        for (list<MathmlNode*>::const_iterator child = mChildren.begin(); child != mChildren.end(); ++child)
+            (*child)->PrintAsSAX2(sax, prefix, false);
+    }
+    else {
+        XercesString elementLocalName(gTypeArray[mType]);
+        XercesString elementQName((prefix == L"") ? gTypeArray[mType] : (prefix + L":" + gTypeArray[mType]));
+        AttributesImpl attributes;
+        for (map<Attribute, wstring>::const_iterator attribute = mAttributes.begin();
+                attribute != mAttributes.end(); ++attribute) {
+            if (attribute->first < 0 || attribute->first >= sizeof(gAttributeArray))
+                throw logic_error("Illegal attribute in MathmlNode::PrintAttributes");
+            XercesString localPart(gAttributeArray[attribute->first]);
+            XercesString qName = localPart;
+            XercesString uri;
+            XercesString value(attribute->second);
+            XercesString type;
+            attributes.addAttribute(qName, uri, localPart, value, type);
+        }
+        XercesString MathMLnamespace("http://www.w3.org/1998/Math/MathML");
+        sax.startElement(MathMLnamespace.c_str(), elementLocalName.c_str(), elementQName.c_str(), attributes);
+        if (!mText.empty()) {
+            XercesString text(mText);
+            sax.characters(text.data(), text.size());
+        }
+        for (list<MathmlNode*>::const_iterator child = mChildren.begin(); child != mChildren.end(); ++child)
+            (*child)->PrintAsSAX2(sax, prefix, false);
+        sax.endElement(MathMLnamespace.c_str(), elementLocalName.c_str(), elementQName.c_str());
+    }
+}
+#endif
 
 }
 

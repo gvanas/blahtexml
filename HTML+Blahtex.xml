@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:b="http://gva.noekeon.org/blahtexml"
+      xml:lang="en">
+<head>
+        <meta http-equiv="Content-Type" content="text/xml; charset=UTF-8"/>
+        <title>Example of Blahtex's processing</title>
+</head>
+<style type="text/css">
+.ieq, .eq {
+    color: blue;
+}
+</style>
+<body>
+<h1>Using <code>blahtexml --xmlin</code></h1>
+
+<p>In general, the distance of a point with coordinates <span class="ieq" b:inline="(x,y)"/> to the origin <span class="ieq" b:inline="(0,0)"/> is <span class="ieq" b:inline="\sqrt{x^2+y^2}"/>. A circle of radius <span class="ieq" b:inline="r"/> is the set of points that are at a distance <span class="ieq" b:inline="r"/> of its center. So, the equation of a circle of radius <span class="ieq" b:inline="r"/> centered at the origin is <span class="eq" b:block="x^2+y^2=r^2\text{.}"/></p>
+
+</body>
+
+</html>

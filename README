@@ -20,3 +20,30 @@ Brief build instructions (more details in the manual): run one of
 
 ------------
 David Harvey
+
+
+Blahtexml version 0.4.4
+======================================
+
+Blahtexml is a simple extension of blahtex to allow it to process an entire
+XML file, and to convert each blahtex equation in it into MathML equations.
+Blahtexml is a source-level extension of blahtex, which means that anything
+that works with Blahtex also works with blahtexml.
+
+Blahtexml requires Xerces-C 2.x to be installed. If you do not have Xerces-C
+installed, you will not be able to build blahtexml (but you will still be able
+to builld and use blahtex of course).
+
+Blahtexml is also licensed under the GNU General Public License.
+See the file "GNU-GPL" and the source code for more details.
+
+For more information, see
+
+   http://gva.noekeon.org/blahtexml/
+
+Brief build instructions (more details in the manual): run one of
+
+  make blahtexml-linux
+  make blahtexml-mac
+
+Gilles Van Assche

@@ -2,6 +2,8 @@
 
 % Copyright (c) 2006, David Harvey
 
+% Copyright (C) 2007, Gilles Van Assche for additions related to the blahtexml extension
+
 % Permission is granted to copy, distribute and/or modify this document
 % under the terms of the GNU Free Documentation License, Version 1.2
 % or any later version published by the Free Software Foundation;
@@ -35,11 +37,12 @@
 
 \vskip 1.6cm
 
-{\Huge blahtex version \blahtexversion{} manual}
+{\Large blahtex and blahtexml version \blahtexversion{} manual}
 
 \vskip 0.8cm
 
-{\Large David Harvey}
+{\Large David Harvey} \\
+{\Large Gilles Van Assche}, for the blahtexml extension
 \end{center}
 
 \vskip 1.6cm
@@ -54,16 +57,34 @@ A copy of the license, and the \LaTeX{} source for this manual, is included
 in the blahtex source distribution.
 }
 
+{\footnotesize
+Copyright (c) 2007, Gilles Van Assche for additions related to the blahtexml extension. Permission is granted to copy, distribute and/or modify this document under the terms of the
+\htmladdnormallink{GNU Free Documentation License}{http://www.gnu.org/copyleft/fdl.html},
+Version 1.2 or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+A copy of the license, and the \LaTeX{} source for this manual, is included
+in the blahtex source distribution.
+}
+
 \section{Introduction}
 
 \begin{latexonly}
 This is the manual for blahtex version \blahtexversion. The most up-to-date information about blahtex, including
 an online HTML version of this document, is available at \texttt{www.blahtex.org}.
+
+This manual also contains information regarding the blahtex extension \emph{blahtexml}, which converts
+all equations from an XML file given at input.
+The most up-to-date information about blahtexml is available at \texttt{gva.noekeon.org/blahtexml}.
 \end{latexonly}
 
 \begin{htmlonly}
 This is the manual for blahtex version \blahtexversion. The most up-to-date information about blahtex, including
 a PDF version of this document, is available at \htmladdnormallink{www.blahtex.org}{http://www.blahtex.org/}.
+
+This manual also contains information regarding the blahtex extension \emph{blahtexml}, which converts
+all equations from an XML file given at input.
+The most up-to-date information about blahtexml is available at
+\htmladdnormallink{gva.noekeon.org/blahtexml}{http://gva.noekeon.org/blahtexml}.
 \end{htmlonly}
 
 \subsection{How this document is organised}
@@ -71,6 +92,7 @@ a PDF version of this document, is available at \htmladdnormallink{www.blahtex.o
 \begin{itemize}
 \item {\bf What blahtex can handle} (Section \ref{sec:handle}) explains what kind of \TeX{} input blahtex can cope with, and how it differs from texvc.
 \item {\bf The blahtex command-line application} (Section \ref{sec:command-line}) describes how to compile, install, and run the blahtex command-line application, and how to interpret its output. This will be of interest to developers who would like a simple way to incorporate blahtex into their project.
+\item {\bf The blahtexml command-line application} (Section \ref{sec:blahtexml}) describes how to compile, install, and run the blahtexml command-line application.
 \item {\bf The blahtex API} (Section \ref{sec:API}) describes how to link blahtex directly into your code, which might give better performance in some environments.
 \item {\bf History/changelog} (Section \ref{sec:history}) summarises previous versions and changes.
 \end{itemize}
@@ -1529,6 +1551,188 @@ The \texttt{<error>} block (mentioned several times above) has the following for
 
 The simplest way to report the error to the user is to extract the \texttt{<message>} block. If you want to implement some localisation of error messages, you should use the \texttt{<id>} and \texttt{<arg>} fields. A complete list of error messages can be found in the source file \texttt{Messages.cpp}, or try the command-line option \texttt{--print-error-messages}. The error IDs may change in future versions of blahtex.
 
+\section{The blahtexml command-line application}\label{sec:blahtexml}
+
+The blahtexml source code is available from \texttt{http://gva.noekeon.org/blahtexml}.
+
+\subsection{System prerequisites}\label{sec:blahtexml-prerequisites}
+
+In addition to the prerequisites of blahtex (see Section~\ref{sec:prerequisites}), blahtexml requires one to have Xerces-C 2.x installed. Xerces-C is an XML parser library and is available at \texttt{http://xerces.apache.org/xerces-c/}. Blahtexml dynamically links to Xerces-C.
+
+\subsection{Compiling blahtexml}\label{sec:compiling-blahtexml}
+
+Unpack the source into your favourite directory.
+\begin{itemize}
+\item If you're running Linux, just type \texttt{make blahtexml-linux}.
+\item If you're running Mac OS X, try \texttt{make blahtexml-mac}.
+\end{itemize}
+You should then find an executable \texttt{blahtexml} in the current directory.
+
+\subsection{Using blahtexml}\label{sec:blahtexml-command-line-syntax}
+
+Blahtexml contains blahtex, which means that all the command-line options of blahtex are available with blahtexml. They are described in Section~\ref{sec:command-line-syntax}.
+
+What is specific to blahtexml is the \texttt{--xmlin} option. This tells blahtexml to input an XML file and to convert all the equations it finds into an output XML file, which contains the equivalent MathML code. All the elements, attributes and processing instructions are copied from the input to the output XML file, unchanged. When it encounters an equation in blahtex, it is converted into MathML.
+
+When used, the \texttt{--xmlin} option must be first. Note that, in this case, not all the blahtex command line options work. The options that are ignored when \texttt{--xmlin} is used are: \texttt{--png}, \texttt{--mathml-encoding}, \texttt{--other-encoding} and \texttt{--disallow-plane-1}.
+
+In the following, we describe how blahtexml locates blahtex formulas and how the process works exactly. For this, we assume that the reader has some familiarity with the XML syntax and with the XML namespaces.
+
+In an XML file, blahtexml looks for attributes with name \texttt{m}, \texttt{inline} or \texttt{block} in the namespace \texttt{http://gva.noekeon.org/blahtexml}. It will then remove this attribute and expand the produced MathML inside the element that contains the attribute. Let us just illustrate this with an example.
+
+Consider the following input file:
+\begin{verbatim}
+<?xml version="1.0"?>
+<equations xmlns:b="http://gva.noekeon.org/blahtexml">
+  <equation b:inline="x+y"/>
+  <equation b:block="\exp(-\gamma x)"/>
+</equations>
+\end{verbatim}
+
+By calling \texttt{blahtexml --xmlin < example1.xml}, blahtexml will produce the following output, where for clarity some MathML elements are not written:
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<equations xmlns:b="http://gva.noekeon.org/blahtexml">
+  <equation>
+    <math xmlns="http://www.w3.org/1998/Math/MathML">
+      <mi>x</mi>
+      <mo lspace="0.222em" rspace="0.222em">+</mo>
+      <mi>y</mi>
+    </math>
+  </equation>
+  <equation>
+    <math xmlns="http://www.w3.org/1998/Math/MathML"
+        display="block">
+      <mi>exp</mi>[...]
+    </math>
+  </equation>
+</equations>
+\end{verbatim}
+
+As one can see in this example, the \texttt{inline} attribute produces MathML in inline mode (the default of MathML), while the \texttt{block} attribute produces MathML in block mode by adding the attribute \texttt{display="block"} in the \texttt{math} element.
+
+The \texttt{m} element does not create a \texttt{math} element, but instead puts the MathML content as is. This can be useful if, e.g., one wants to type an equation partly in MathML and partly in blahtex. This is illustrated in the next example, where a blahtex equation is given inside a \texttt{msqrt} MathML element. The input file
+\begin{verbatim}
+<root xmlns:b="http://gva.noekeon.org/blahtexml">
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+    <msqrt b:m="x+y"/>
+  </math>
+</root>
+\end{verbatim}
+yields as output:
+\begin{verbatim}
+<root xmlns:b="http://gva.noekeon.org/blahtexml">
+  <math xmlns="http://www.w3.org/1998/Math/MathML">
+    <msqrt>
+      <mi>x</mi>
+      <mo lspace="0.222em" rspace="0.222em">+</mo>
+      <mi>y</mi>
+    </msqrt>
+  </math>
+</root>
+\end{verbatim}
+
+Note that if more than one attribute in the blahtex namespace are present, only one is processed, with \texttt{m} having the highest priority, then \texttt{inline} and finally \texttt{block}.
+
+\subsubsection{MathML namespace in output file}
+
+The MathML element produced in the output are in the MathML namespace, namely \texttt{http://www.w3.org/1998/Math/MathML}. There are two ways to express the namespace, either by adding the \texttt{xmlns} attribute to the outer MathML element, or by adding a prefix associated to the MathML namespace to all the MathML elements. By default, or using the \texttt{--mathml-nsprefix-auto} option, blahtexml automatically chooses between the two alternatives. Either a prefix already exists and blahtex reuses it, or such a prefix does not exist and an \texttt{xmlns} attribute is added.
+
+From the point of view of XML namespaces, both approaches are equivalent. Nevertheless, some XML applications predate the introduction of XML namespaces and it may sometimes be necessary to force either solution.
+
+\begin{itemize}
+\item \texttt{--mathml-nsprefix-auto}. This is the default option: blahtexml automatically chooses to add a prefix or not.
+\item \texttt{--mathml-nsprefix-none}. The produced MathML elements are not prefixed. The \texttt{xmlns} attribute is added to the outer MathML element.
+\item \texttt{--mathml-nsprefix}. This option requires a parameter: the prefix (string). The produced MathML elements are prefixed with the given prefix and a colon.
+\end{itemize}
+
+Consider the following input file:
+\begin{verbatim}
+<root xmlns:b="http://gva.noekeon.org/blahtexml">
+  <eq b:inline="x"/>
+  <eq xmlns:m="http://www.w3.org/1998/Math/MathML" b:inline="x"/>
+</root>
+\end{verbatim}
+
+Invoking blahtexml using the default option \texttt{--mathml-nsprefix-auto}, one gets the following result:
+\begin{verbatim}
+<root xmlns:b="http://gva.noekeon.org/blahtexml">
+  <eq>
+    <math xmlns="http://www.w3.org/1998/Math/MathML">
+      <mi>x</mi>
+    </math>
+  </eq>
+  <eq xmlns:m="http://www.w3.org/1998/Math/MathML">
+    <m:math><m:mi>x</m:mi></m:math>
+  </eq>
+</root>
+\end{verbatim}
+
+Using \texttt{--mathml-nsprefix-none}, one gets the following result:
+\begin{verbatim}
+<root xmlns:b="http://gva.noekeon.org/blahtexml">
+  <eq>
+    <math xmlns="http://www.w3.org/1998/Math/MathML">
+      <mi>x</mi>
+    </math>
+  </eq>
+  <eq xmlns:m="http://www.w3.org/1998/Math/MathML">
+    <math xmlns="http://www.w3.org/1998/Math/MathML">
+      <mi>x</mi>
+    </math>
+  </eq>
+</root>
+\end{verbatim}
+
+And using \texttt{--mathml-nsprefix m}, one gets the following result:
+\begin{verbatim}
+<root xmlns:b="http://gva.noekeon.org/blahtexml">
+  <eq>
+    <m:math xmlns:m="http://www.w3.org/1998/Math/MathML">
+      <m:mi>x</m:mi>
+    </m:math>
+  </eq>
+  <eq xmlns:m="http://www.w3.org/1998/Math/MathML">
+    <m:math><m:mi>x</m:mi></m:math>
+  </eq>
+</root>
+\end{verbatim}
+
+
+\subsubsection{Output document type}
+
+By default, the generated XML file does not contain a document type declaration. If the output file is intended to a given XML application, a \texttt{DOCTYPE} declaration may be needed. The \texttt{--doctype-}* command-line options provide a way to specify this.
+
+\begin{itemize}
+\item \texttt{--doctype-system}. This option takes a reference to a DTD (string) as argument and causes blahtexml to output a \texttt{SYSTEM} document type declaration with the given reference.
+\item \texttt{--doctype-public}. This option takes two arguments: a public ID (string) and a reference to a DTD (string). Blahtex produces a \texttt{PUBLIC} document type declaration with the given public ID and reference.
+\item \texttt{--doctype-xhtml+mathml}. This option is equivalent to \texttt{--mathml-nsprefix-none} \texttt{--doctype-public} \texttt{"-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"}
+\newline
+\texttt{"http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd"} and is useful to produce valid XHTML+MathML output.
+\end{itemize}
+
+\subsubsection{Error reporting}
+
+If a blahtex equation given in the input XML file generates an error during its conversion to MathML, blahtexml adds an \texttt{error} element (in the blahtex namespace) instead of the MathML elements. The blahtex formula is not discarded, so that the user can more easily see what caused the problem. Furthermore, the number of errors encountered is reported on the screen.
+
+For instance, the following input file
+\begin{verbatim}
+<root xmlns:b="http://gva.noekeon.org/blahtexml">
+  <eq b:inline="\qwerty"/>
+</root>
+\end{verbatim}
+generates the following output file
+\begin{verbatim}
+<root xmlns:b="http://gva.noekeon.org/blahtexml">
+  <eq b:inline="\qwerty">
+    <error xmlns="http://gva.noekeon.org/blahtexml">
+      Unrecognised command "\qwerty"
+    </error>
+  </eq>
+</root>
+\end{verbatim}
+
+
 \section{The blahtex API}\label{sec:API}
 
 This section gives a summary of how to link blahtex directly into a C++ application. You will need to write a wrapper if you want to use a different language. (If you do this, please consider sending me the wrapper so I can make it available for others to use.)
@@ -1622,6 +1826,10 @@ The blahtex core is internally Unicode throughout, and works exclusively with wi
 \item Fixed spacing for \texttt{\texcommand{substack}} and the \texttt{aligned} environment. Note however that Firefox still doesn't support the requisite \texttt{rowspacing} and \texttt{columnspacing} attributes, so it won't look right yet in Firefox.
 \item Changed format of \texttt{--print-error-messages} slightly.
 \item Finished adding MathML character names for all commands added in version 0.4.2.
+\end{itemize}
+\item Version blahtexml 0.4.4 (2/Nov/2007).
+\begin{itemize}
+\item Added the blahtexml extension by Gilles Van Assche.
 \end{itemize}
 \end{itemize}
 

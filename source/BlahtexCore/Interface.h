@@ -4,6 +4,9 @@
 // a TeX to MathML converter designed with MediaWiki in mind
 // Copyright (C) 2006, David Harvey
 //
+// blahtexml = XML input for blahtex (version 0.4.4)
+// Copyright (C) 2007, Gilles Van Assche
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
@@ -26,6 +29,11 @@
 #include "Misc.h"
 #include "Manager.h"
 #include "XmlEncode.h"
+
+#ifdef BLAHTEXML_USING_XERCES
+#include <xercesc/sax2/ContentHandler.hpp>
+XERCES_CPP_NAMESPACE_USE
+#endif
 
 namespace blahtex
 {
@@ -70,6 +78,9 @@ public:
     void ProcessInput(const std::wstring& input);
     std::wstring GetMathml();
     std::wstring GetPurifiedTex();
+#ifdef BLAHTEXML_USING_XERCES
+    void PrintAsSAX2(ContentHandler& sax, const std::wstring& prefix, bool ignoreFirstmrow) const;
+#endif
 };
 
 }

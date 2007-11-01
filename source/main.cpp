@@ -4,6 +4,9 @@
 // a TeX to MathML converter designed with MediaWiki in mind
 // Copyright (C) 2006, David Harvey
 //
+// blahtexml = XML input for blahtex (version 0.4.4)
+// Copyright (C) 2007, Gilles Van Assche
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
@@ -27,6 +30,24 @@
 
 using namespace std;
 using namespace blahtex;
+
+#ifdef BLAHTEXML_USING_XERCES
+#include <iostream>
+#include <string.h>
+#include <xercesc/framework/StdInInputSource.hpp>
+#include <xercesc/framework/XMLFormatter.hpp>
+#include <xercesc/parsers/SAX2XMLFilterImpl.hpp>
+#include <xercesc/sax2/Attributes.hpp>
+#include <xercesc/sax2/SAX2XMLReader.hpp>
+#include <xercesc/sax2/XMLReaderFactory.hpp>
+#include <xercesc/util/OutOfMemoryException.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/TransService.hpp>
+#include <xercesc/util/XMLString.hpp>
+#include <xercesc/util/XMLUniDefs.hpp>
+#include "BlahtexXMLin/BlahtexFilter.h"
+#include "BlahtexXMLin/SAX2Output.h"
+#endif
 
 string gBlahtexVersion = "0.4.4";
 
@@ -63,15 +84,27 @@ wstring FormatError(
 void ShowUsage()
 {
     cout << "\n"
+#ifdef BLAHTEXML_USING_XERCES
+"Blahtexml version " << gBlahtexVersion << "\n"
+#else
 "Blahtex version " << gBlahtexVersion << "\n"
+#endif
 "Copyright (C) 2006, David Harvey\n"
+#ifdef BLAHTEXML_USING_XERCES
+"Copyright (C) 2007, Gilles Van Assche for the blahtexml extension\n"
+#endif
 "\n"
 "This is free software; see the source "
 "for copying conditions. There is NO\n"
 "warranty; not even for MERCHANTABILITY "
 "or FITNESS FOR A PARTICULAR PURPOSE.\n"
 "\n"
+#ifdef BLAHTEXML_USING_XERCES
+"Normal mode:    blahtexml [ options ] < inputfile > outputfile\n"
+"XML input mode: blahtexml --xmlin [ options ] < inputfile > outputfile\n"
+#else
 "Usage: blahtex [ options ] < inputfile > outputfile\n"
+#endif
 "\n"
 "SUMMARY OF OPTIONS (see manual for details)\n"
 "\n"
@@ -100,6 +133,16 @@ void ShowUsage()
 " --throw-logic-error\n"
 " --print-error-messages\n"
 "\n"
+#ifdef BLAHTEXML_USING_XERCES
+" --doctype-system DTD\n"
+" --doctype-public PublicID DTD\n"
+" --doctype-xhtml+mathml\n"
+" --mathml-nsprefix-auto\n"
+" --mathml-nsprefix-none\n"
+" --mathml-nsprefix prefix\n"
+"\n"
+"\n"
+#endif
 "More information available at www.blahtex.org\n"
 "\n";
 
@@ -128,6 +171,91 @@ void AddTrailingSlash(string& s)
         s += '/';
 }
 
+#ifdef BLAHTEXML_USING_XERCES
+SAX2Output::Doctype outputDoctype = SAX2Output::DoctypeNone;
+string outputPublicID;
+string outputDTD;
+BlahtexFilter::PrefixType MathMLPrefixType = BlahtexFilter::PrefixAuto;
+string MathMLPrefix;
+int batchXMLConversion(blahtex::Interface& interface)
+{
+    cerr << "\n"
+        "Blahtexml version " << gBlahtexVersion << "\n"
+        "Copyright (C) 2006, David Harvey\n"
+        "Copyright (C) 2007, Gilles Van Assche for the blahtexml extension\n"
+        "\n"
+        "This is free software; see the source "
+        "for copying conditions. There is NO\n"
+        "warranty; not even for MERCHANTABILITY "
+        "or FITNESS FOR A PARTICULAR PURPOSE.\n";
+    cerr << endl;
+    try {
+         XMLPlatformUtils::Initialize();
+    }
+    catch (const XMLException& toCatch) {
+         XERCES_STD_QUALIFIER cerr << "Error during initialization! :\n" << XMLString::transcode(toCatch.getMessage()) << endl;
+         return 1;
+    }
+    SAX2XMLReader* reader = XMLReaderFactory::createXMLReader();
+    BlahtexFilter* parser = new BlahtexFilter(reader, interface);
+
+    parser->setFeature(XMLUni::fgSAX2CoreValidation, false);
+    parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
+    parser->setFeature(XMLUni::fgXercesSchema, false);
+    parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
+    parser->setFeature(XMLUni::fgSAX2CoreNameSpacePrefixes, false);
+
+    XercesString _MathMLPrefix(MathMLPrefix.c_str());
+    wstring __MathMLPrefix = _MathMLPrefix.convertTowstring();
+    parser->setDesiredMathMLPrefixType(MathMLPrefixType, __MathMLPrefix);
+
+    int parserErrors = 0;
+    int result = 0;
+    {
+        StdInInputSource stdIn;
+        try {
+            XercesString publicID(outputPublicID.c_str());
+            XercesString DTD(outputDTD.c_str());
+            SAX2Output output(cout, "UTF-8", XMLFormatter::UnRep_CharRef, outputDoctype, publicID, DTD);
+            parser->setContentHandler(&output);
+            parser->setErrorHandler(&output);
+            parser->parse(stdIn);
+            parserErrors = parser->getErrorCount();
+        }
+        catch (const OutOfMemoryException&) {
+            cerr << endl;
+            cerr << "Out of memory exception" << endl;
+            result = 1;
+        }
+        catch (const XMLException& e) {
+            char *errorString = XMLString::transcode(e.getMessage());
+            cerr << endl;
+            cerr << "Error: " << errorString << endl;
+            XMLString::release(&errorString);
+            result = 1;
+        }
+    }
+    if (parserErrors > 0) {
+        cerr << "During the XML input parsing, ";
+        if (parserErrors == 1) cerr << "an error";
+        else cerr << parserErrors << " errors";
+        cerr << " occurred." << endl;
+    }
+    int blahtexErrors = parser->getNumberOfErrors();
+    if (blahtexErrors > 0) {
+        cerr << "During the blahtex conversion, ";
+        if (blahtexErrors == 1) cerr << "an error";
+        else cerr << blahtexErrors << " errors";
+        cerr << " occurred.\nSee the output file for more information." << endl;
+        result = 1;
+    }
+    delete parser;
+    delete reader;
+    XMLPlatformUtils::Terminate();
+    return result;
+}
+#endif
+
 int main (int argc, char* const argv[]) {
     // This outermost try block catches std::runtime_error
     // and CommandLineException.
@@ -139,6 +267,9 @@ int main (int argc, char* const argv[]) {
 
         bool doPng    = false;
         bool doMathml = false;
+#ifdef BLAHTEXML_USING_XERCES
+        bool doXMLinput = false;
+#endif
 
         bool debugLayoutTree  = false;
         bool debugParseTree   = false;
@@ -340,7 +471,37 @@ int main (int argc, char* const argv[]) {
             
             else if (arg == "--keep-temp-files")
                 deleteTempFiles = false;
-
+#ifdef BLAHTEXML_USING_XERCES
+            else if (arg == "--xmlin")
+                doXMLinput = true;
+            else if (arg == "--doctype-system") {
+                outputDoctype = SAX2Output::DoctypeSystem;
+                if (++i == argc) throw CommandLineException("Missing string after \"--doctype-system\"");
+                outputDTD = argv[i];
+            }
+            else if (arg == "--doctype-public") {
+                outputDoctype = SAX2Output::DoctypePublic;
+                if (++i == argc) throw CommandLineException("Missing two strings after \"--doctype-public\"");
+                outputPublicID = argv[i];
+                if (++i == argc) throw CommandLineException("Missing one string after \"--doctype-public\"");
+                outputDTD = argv[i];
+            }
+            else if (arg == "--doctype-xhtml+mathml") {
+                outputDoctype = SAX2Output::DoctypePublic;
+                outputPublicID = "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN";
+                outputDTD = "http://www.w3.org/TR/MathML2/dtd/xhtml-math11-f.dtd";
+                MathMLPrefixType = BlahtexFilter::PrefixNone;
+            }
+            else if (arg == "--mathml-nsprefix-auto")
+                MathMLPrefixType = BlahtexFilter::PrefixAuto;
+            else if (arg == "--mathml-nsprefix-none")
+                MathMLPrefixType = BlahtexFilter::PrefixNone;
+            else if (arg == "--mathml-nsprefix") {
+                MathMLPrefixType = BlahtexFilter::PrefixAdd;
+                if (++i == argc) throw CommandLineException("Missing string after \"--mathml-nsprefix\"");
+                MathMLPrefix = argv[i];
+            }
+#endif
             else
                 throw CommandLineException(
                     "Unrecognised command line option \"" + arg + "\""
@@ -349,6 +510,10 @@ int main (int argc, char* const argv[]) {
 
         // Finished processing command line, now process the input
 
+#ifdef BLAHTEXML_USING_XERCES
+        if (doXMLinput)
+            return batchXMLConversion(interface);
+#endif
         if (isatty(0))
             ShowUsage();
 

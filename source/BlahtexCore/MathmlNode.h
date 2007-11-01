@@ -4,6 +4,9 @@
 // a TeX to MathML converter designed with MediaWiki in mind
 // Copyright (C) 2006, David Harvey
 //
+// blahtexml = XML input for blahtex (version 0.4.4)
+// Copyright (C) 2007, Gilles Van Assche
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
@@ -21,11 +24,16 @@
 #ifndef BLAHTEX_MATHMLNODE_H
 #define BLAHTEX_MATHMLNODE_H
 
-#include <string>
 #include <iostream>
 #include <map>
 #include <list>
+#include <string>
 #include "Misc.h"
+
+#ifdef BLAHTEXML_USING_XERCES
+#include <xercesc/sax2/ContentHandler.hpp>
+XERCES_CPP_NAMESPACE_USE
+#endif
 
 namespace blahtex
 {
@@ -153,6 +161,9 @@ struct MathmlNode
     // Used internally by Print:
     void PrintType(std::wostream& os) const;
     void PrintAttributes(std::wostream& os) const;
+#ifdef BLAHTEXML_USING_XERCES
+    void PrintAsSAX2(ContentHandler& sax, const std::wstring& prefix, bool ignoreFirstmrow) const;
+#endif
 };
 
 }
