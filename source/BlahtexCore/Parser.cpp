@@ -4,6 +4,9 @@
 // a TeX to MathML converter designed with MediaWiki in mind
 // Copyright (C) 2006, David Harvey
 //
+// blahtexml (version 0.5)
+// Copyright (C) 2008, Gilles Van Assche
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
@@ -19,6 +22,7 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 #include <stdexcept>
+#include "InputSymbolTranslation.h"
 #include "Parser.h"
 
 using namespace std;
@@ -839,8 +843,9 @@ bool IsInTokenTables(const wstring& token)
 
 Parser::TokenCode Parser::GetMathTokenCode(const wstring& token) const
 {
+    wstring translatedToken = translateToken(token);
     wishful_hash_map<wstring, TokenCode>::const_iterator
-        output = gMathTokenTable.find(token);
+        output = gMathTokenTable.find(translatedToken);
 
     if (output != gMathTokenTable.end())
     {
@@ -849,13 +854,13 @@ Parser::TokenCode Parser::GetMathTokenCode(const wstring& token) const
 
         // Give the user some helpful hints if they try to use certain
         // illegal commands (e.g. "% is illegal, try \% instead").
-        if (token == L"%" || token == L"#" || token == L"$")
+        if (translatedToken == L"%" || translatedToken == L"#" || translatedToken == L"$")
             throw Exception(
                 L"IllegalCommandInMathModeWithHint",
-                token, L"\\" + token
+                token, L"\\" + translatedToken
             );
 
-        else if (token == L"`" || token == L"\"")
+        else if (translatedToken == L"`" || translatedToken == L"\"")
             throw Exception(L"IllegalCommandInMathMode", token);
 
         throw logic_error(
@@ -863,21 +868,21 @@ Parser::TokenCode Parser::GetMathTokenCode(const wstring& token) const
         );
     }
 
-    if (token[0] == L'\\')
+    if (translatedToken[0] == L'\\')
     {
-        if (gTextTokenTable.count(token))
+        if (gTextTokenTable.count(translatedToken))
             throw Exception(L"IllegalCommandInMathMode", token);
         else
             throw Exception(L"UnrecognisedCommand", token);
     }
 
-    if (token[0] > 0x7F)
+    if (translatedToken[0] > 0x7F)
         throw Exception(L"NonAsciiInMathMode");
 
     if (
-        (token[0] >= L'a' && token[0] <= L'z') ||
-        (token[0] >= L'A' && token[0] <= L'Z') ||
-        (token[0] >= L'0' && token[0] <= L'9')
+        (translatedToken[0] >= L'a' && translatedToken[0] <= L'z') ||
+        (translatedToken[0] >= L'A' && translatedToken[0] <= L'Z') ||
+        (translatedToken[0] >= L'0' && translatedToken[0] <= L'9')
     )
         return cSymbol;
 
@@ -963,7 +968,7 @@ auto_ptr<ParseTree::MathNode> Parser::DoParse(const vector<wstring>& input)
 auto_ptr<ParseTree::MathNode> Parser::ParseMathField()
 {
     mTokenSource->SkipWhitespace();
-    wstring command = mTokenSource->Get();
+    wstring command = translateToken(mTokenSource->Get());
 
     switch (GetMathTokenCode(command))
     {
@@ -1195,7 +1200,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
             case cSymbolUnsafe:
             {
                 output->mChildren.push_back(
-                    new ParseTree::MathSymbol(mTokenSource->Get())
+                    new ParseTree::MathSymbol(translateToken(mTokenSource->Get()))
                 );
                 break;
             }
@@ -1255,7 +1260,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
 
             case cShortEnvironment:
             {
-                wstring command = mTokenSource->Get();
+                wstring command = translateToken(mTokenSource->Get());
 
                 // Strip initial backslash (e.g. "\substack" => "substack")
                 wstring name = command.substr(1, command.size() - 1);
@@ -1311,7 +1316,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
             {
                 mTokenSource->Advance();
                 mTokenSource->SkipWhitespace();
-                wstring left = mTokenSource->Get();
+                wstring left = translateToken(mTokenSource->Get());
                 if (left.empty())
                     throw Exception(L"MissingDelimiter", L"\\left");
                 else if (!gDelimiterTable.count(left))
@@ -1324,7 +1329,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
 
                 mTokenSource->Advance();
                 mTokenSource->SkipWhitespace();
-                wstring right = mTokenSource->Get();
+                wstring right = translateToken(mTokenSource->Get());
                 if (right.empty())
                     throw Exception(L"MissingDelimiter", L"\\right");
                 else if (!gDelimiterTable.count(right))
@@ -1338,9 +1343,9 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
 
             case cBig:
             {
-                wstring command = mTokenSource->Get();
+                wstring command = translateToken(mTokenSource->Get());
                 mTokenSource->SkipWhitespace();
-                wstring delimiter = mTokenSource->Get();
+                wstring delimiter = translateToken(mTokenSource->Get());
                 if (delimiter.empty())
                     throw Exception(L"MissingDelimiter", command);
                 else if (!gDelimiterTable.count(delimiter))
@@ -1463,7 +1468,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
 
             case cCommand1Arg:
             {
-                wstring command = mTokenSource->Get();
+                wstring command = translateToken(mTokenSource->Get());
                 output->mChildren.push_back(
                     new ParseTree::MathCommand1Arg(
                         command, ParseMathField()
@@ -1474,7 +1479,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
 
             case cCommand2Args:
             {
-                wstring command = mTokenSource->Get();
+                wstring command = translateToken(mTokenSource->Get());
                 auto_ptr<ParseTree::MathNode> child1 = ParseMathField();
                 auto_ptr<ParseTree::MathNode> child2 = ParseMathField();
                 output->mChildren.push_back(
@@ -1498,7 +1503,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
                 // "infixNumerator", and start processing the "denominator".
 
                 infixNumerator = output;
-                infixCommand = mTokenSource->Get();
+                infixCommand = translateToken(mTokenSource->Get());
                 output.reset(new ParseTree::MathList);
                 break;
             }

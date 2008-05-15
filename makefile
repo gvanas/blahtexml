@@ -5,8 +5,8 @@
 # a TeX to MathML converter designed with MediaWiki in mind
 # Copyright (C) 2006, David Harvey
 #
-# blahtexml = XML input for blahtex (version 0.4.4)
-# Copyright (C) 2007, Gilles Van Assche
+# blahtexml (version 0.5)
+# Copyright (C) 2007-2008, Gilles Van Assche
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ SOURCES = \
 	source/md5Wrapper.cpp \
 	source/Messages.cpp \
 	source/UnicodeConverter.cpp \
+	source/BlahtexCore/InputSymbolTranslation.cpp \
 	source/BlahtexCore/Interface.cpp \
 	source/BlahtexCore/LayoutTree.cpp \
 	source/BlahtexCore/MacroProcessor.cpp \
@@ -53,6 +54,7 @@ HEADERS = \
 	source/md5.h \
 	source/md5Wrapper.h \
 	source/UnicodeConverter.h \
+	source/BlahtexCore/InputSymbolTranslation.h \
 	source/BlahtexCore/Interface.h \
 	source/BlahtexCore/LayoutTree.h \
 	source/BlahtexCore/MacroProcessor.h \
@@ -83,14 +85,20 @@ OBJECTS = $(addprefix $(BINDIR)/, $(notdir $(patsubst %.c,%.o,$(patsubst %.cpp,%
 
 OBJECTS_XMLIN = $(addprefix $(BINDIR_XMLIN)/, $(notdir $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCES_XMLIN)))))
 
+source/BlahtexCore/InputSymbolTranslation.inc: source/BlahtexCore/InputSymbolTranslation.xml
+	xsltproc -o $@ source/BlahtexCore/ISTtoCpp.xslt $<
+
+source/BlahtexCore/InputSymbolTranslation.cpp: source/BlahtexCore/InputSymbolTranslation.inc
+
+$(BINDIR)/InputSymbolTranslation.o: InputSymbolTranslation.cpp InputSymbolTranslation.inc
+
+$(BINDIR_XMLIN)/InputSymbolTranslation.o: InputSymbolTranslation.cpp InputSymbolTranslation.inc
+
 #default targets are still blahtex (not blahtexml)
 linux: blahtex-linux
 mac: blahtex-mac
 
-blahtex-linux : CFLAGS = -O3
-blahtex-mac : CFLAGS = -O3 -DBLAHTEX_ICONV_CONST
-blahtexml-linux : CFLAGS = -O3
-blahtexml-mac : CFLAGS = -O3 -DBLAHTEX_ICONV_CONST
+CFLAGS = -O2
 
 VPATH = source:source/BlahtexCore:source/BlahtexXMLin
 
@@ -103,10 +111,10 @@ $(BINDIR)/%.o:%.c
 	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(BINDIR_XMLIN)/%.o:%.cpp
-	$(CXX) $(INCLUDES) $(CFLAGS) -DBLAHTEXML_USING_XERCES -O3 -c $< -o $@
+	$(CXX) $(INCLUDES) $(CFLAGS) -DBLAHTEXML_USING_XERCES -c $< -o $@
 
 $(BINDIR_XMLIN)/%.o:%.c
-	$(CC) $(INCLUDES) $(CFLAGS) -DBLAHTEXML_USING_XERCES -O3 -c $< -o $@
+	$(CC) $(INCLUDES) $(CFLAGS) -DBLAHTEXML_USING_XERCES -c $< -o $@
 
 blahtex-linux:  $(BINDIR) $(OBJECTS)  $(HEADERS)
 	$(CXX) $(CFLAGS) -o blahtex $(OBJECTS)
@@ -122,5 +130,16 @@ blahtexml-mac: $(BINDIR_XMLIN) $(OBJECTS_XMLIN)  $(HEADERS_XMLIN)
 
 clean:
 	rm -f blahtex $(OBJECTS) blahtexml $(OBJECTS_XMLIN)
+
+# Documentation
+
+doc: manual.pdf
+
+manual.pdf: manual.tex InputSymbolTranslation.tex
+	pdflatex manual
+	pdflatex manual
+
+InputSymbolTranslation.tex: source/BlahtexCore/InputSymbolTranslation.xml
+	xsltproc -o $@ ISTtoTeX.xslt $<
 
 ########## end of file ##########

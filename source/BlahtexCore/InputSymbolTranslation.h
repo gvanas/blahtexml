@@ -1,7 +1,7 @@
-// File "XercesString.h"
+// File "InputSymbolTranslation.h"
 //
 // blahtexml (version 0.5)
-// Copyright (C) 2007-2008, Gilles Van Assche
+// Copyright (C) 2008, Gilles Van Assche
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,24 +17,17 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-#ifndef XERCESSTRING_H
-#define XERCESSTRING_H
+#ifndef BLAHTEX_INPUTSYMBOLTRANSLATION_H
+#define BLAHTEX_INPUTSYMBOLTRANSLATION_H
 
-#include <string>
-#include <xercesc/util/XMLString.hpp>
 
-XERCES_CPP_NAMESPACE_USE
-using namespace std;
-
-class XercesString : public basic_string<XMLCh>
+namespace blahtex
 {
-public:
-    XercesString();
-    XercesString(const char *s);
-    XercesString(const XMLCh *s);
-    XercesString(const wstring& in);
-    wstring convertTowstring();
-    friend ostream& operator<<(ostream& out, const XercesString& s);
-};
+
+std::wstring translateToken(const std::wstring& token);
+
+}
 
 #endif
+
+// end of file @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

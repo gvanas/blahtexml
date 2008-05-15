@@ -1,29 +1,15 @@
-blahtex version 0.4.4  --  README file
+Blahtex(ml) version 0.5
 ======================================
-
 
 Blahtex is licensed under the GNU General Public License.
 See the file "GNU-GPL" and the source code for more details.
-
-
-For more information, troubleshooting, bug reports, manual, ....
-
-   http://www.blahtex.org/
-
-
 
 Brief build instructions (more details in the manual): run one of
 
   make linux
   make mac  
 
-
-------------
-David Harvey
-
-
-Blahtexml version 0.4.4
-======================================
+---
 
 Blahtexml is a simple extension of blahtex to allow it to process an entire
 XML file, and to convert each blahtex equation in it into MathML equations.
@@ -45,5 +31,3 @@ Brief build instructions (more details in the manual): run one of
 
   make blahtexml-linux
   make blahtexml-mac
-
-Gilles Van Assche

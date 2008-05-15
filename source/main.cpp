@@ -4,8 +4,8 @@
 // a TeX to MathML converter designed with MediaWiki in mind
 // Copyright (C) 2006, David Harvey
 //
-// blahtexml = XML input for blahtex (version 0.4.4)
-// Copyright (C) 2007, Gilles Van Assche
+// blahtexml (version 0.5)
+// Copyright (C) 2007-2008, Gilles Van Assche
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ using namespace blahtex;
 #include "BlahtexXMLin/SAX2Output.h"
 #endif
 
-string gBlahtexVersion = "0.4.4";
+string gBlahtexVersion = "0.5";
 
 // A single global instance of UnicodeConverter.
 UnicodeConverter gUnicodeConverter;
@@ -91,7 +91,7 @@ void ShowUsage()
 #endif
 "Copyright (C) 2006, David Harvey\n"
 #ifdef BLAHTEXML_USING_XERCES
-"Copyright (C) 2007, Gilles Van Assche for the blahtexml extension\n"
+"Copyright (C) 2007-2008, Gilles Van Assche\n"
 #endif
 "\n"
 "This is free software; see the source "
@@ -182,7 +182,7 @@ int batchXMLConversion(blahtex::Interface& interface)
     cerr << "\n"
         "Blahtexml version " << gBlahtexVersion << "\n"
         "Copyright (C) 2006, David Harvey\n"
-        "Copyright (C) 2007, Gilles Van Assche for the blahtexml extension\n"
+        "Copyright (C) 2007-2008, Gilles Van Assche\n"
         "\n"
         "This is free software; see the source "
         "for copying conditions. There is NO\n"

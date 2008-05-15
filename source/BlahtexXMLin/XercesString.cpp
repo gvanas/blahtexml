@@ -1,7 +1,7 @@
 // File "XercesString.cpp"
 //
-// blahtexml = XML input for blahtex (version 0.4.4)
-// Copyright (C) 2007, Gilles Van Assche
+// blahtexml (version 0.5)
+// Copyright (C) 2007-2008, Gilles Van Assche
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

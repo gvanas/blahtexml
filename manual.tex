@@ -2,7 +2,7 @@
 
 % Copyright (c) 2006, David Harvey
 
-% Copyright (C) 2007, Gilles Van Assche for additions related to the blahtexml extension
+% Copyright (C) 2007-2008, Gilles Van Assche
 
 % Permission is granted to copy, distribute and/or modify this document
 % under the terms of the GNU Free Documentation License, Version 1.2
@@ -14,8 +14,10 @@
 \usepackage{html}      % latex2html package
 \usepackage{ucs}       % for \unichar
 \usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{amsmath, amssymb}
 
-\newcommand{\blahtexversion}{0.4.4}
+\newcommand{\blahtexversion}{0.5}
 \newcommand{\texcommand}[1]{\textbackslash{}#1}
 \newcommand{\mylink}[1]{\htmladdnormallink{\texttt{#1}}{#1}}
 
@@ -41,8 +43,7 @@
 
 \vskip 0.8cm
 
-{\Large David Harvey} \\
-{\Large Gilles Van Assche}, for the blahtexml extension
+{\Large David Harvey} and {\Large Gilles Van Assche}
 \end{center}
 
 \vskip 1.6cm
@@ -58,7 +59,7 @@ in the blahtex source distribution.
 }
 
 {\footnotesize
-Copyright (c) 2007, Gilles Van Assche for additions related to the blahtexml extension. Permission is granted to copy, distribute and/or modify this document under the terms of the
+Copyright (c) 2007-2008, Gilles Van Assche. Permission is granted to copy, distribute and/or modify this document under the terms of the
 \htmladdnormallink{GNU Free Documentation License}{http://www.gnu.org/copyleft/fdl.html},
 Version 1.2 or any later version published by the Free Software Foundation;
 with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
@@ -950,8 +951,13 @@ The command \texttt{\texcommand{hbox}} doesn't really behave like it should, bec
 
 If the magic command \texttt{\texcommand{strictspacing}} occurs anywhere in the input, blahtex will switch to `strict spacing mode' for the entire equation. This overrides the command-line \texttt{--spacing} setting.
 
+\subsection{Unicode symbol translation in math mode}\label{sec:input-symbol-translation}
 
-\subsection{Non-ASCII characters}\label{sec:non-ascii-characters}
+In math mode, blahtex accepts a number of non-ASCII symbols just like their command counterpart. These symbols are translated as \TeX{} commands, as detailed in the table below. For instance, the character $\alpha$ (Unicode 0x3B1) is equivalent to the ASCII sequence \verb|\alpha|. The benefit is input formulas that are more compact and more readable, provided that the file encoding and/or console character set allows for it. Note that this applies to both blahtex and blahtexml; see Section~\ref{sec:blahtexml-input-symbol-translation}.
+
+\input{InputSymbolTranslation.tex}
+
+\subsection{Non-ASCII characters in text mode}\label{sec:non-ascii-characters}
 
 Blahtex will serenely transcribe any non-ASCII characters for MathML output, as long as they appear in text mode (for example, surrounded by \texttt{\texcommand{text}\{...\}}). For PNG output, things are more difficult, because \LaTeX{} needs special packages and fonts available. At a minimum, the blahtex command line option \texttt{--use-ucs-package} must be used. The following sections describe which characters are permitted for PNG output.
 
@@ -1732,6 +1738,16 @@ generates the following output file
 </root>
 \end{verbatim}
 
+\subsubsection{Unicode symbol translation in math mode}\label{sec:blahtexml-input-symbol-translation}
+
+As detailed in Section~\ref{sec:input-symbol-translation}, blahtexml accepts some Unicode symbols and translates them into \TeX commands. For instance, the following three lines are equivalent and will give the same output:
+\begin{itemize}
+\item \verb|<eq b:inline="\Phi \leq \Omega \approx \Gamma"/>|
+\item \verb|<eq b:inline="|$\Phi \leq \Omega \approx \Gamma$\verb|"/>|
+\item \verb|<eq b:inline="&#x3A6;&#x2264;&#x3A9;&#x2248;&#x393;"/>|
+\end{itemize}
+
+The first line uses the traditional \TeX commands. The second line uses the Unicode symbols directly, assuming that the encoding of the XML file allows for it. Note that UTF-8, the default encoding in XML, includes all Unicode characters. The third line shows that it is also possible to use XML entities to input Unicode characters.
 
 \section{The blahtex API}\label{sec:API}
 
@@ -1827,9 +1843,14 @@ The blahtex core is internally Unicode throughout, and works exclusively with wi
 \item Changed format of \texttt{--print-error-messages} slightly.
 \item Finished adding MathML character names for all commands added in version 0.4.2.
 \end{itemize}
-\item Version blahtexml 0.4.4 (2/Nov/2007).
+\item Version blahtexml 0.4.4 (2/Nov/2007) by GVA
 \begin{itemize}
-\item Added the blahtexml extension by Gilles Van Assche.
+\item Added the blahtexml extension.
+\end{itemize}
+\item Version blahtexml 0.5 (16/May/2008) by GVA
+\begin{itemize}
+\item Added input symbol translation.
+\item Improved makefile based on user feedback (Mac compilation, lower optimization level, documentation generation).
 \end{itemize}
 \end{itemize}
 
