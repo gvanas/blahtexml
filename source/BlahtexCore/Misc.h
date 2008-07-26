@@ -4,6 +4,9 @@
 // a TeX to MathML converter designed with MediaWiki in mind
 // Copyright (C) 2006, David Harvey
 //
+// blahtexml (version 0.6)
+// Copyright (C) 2008, Gilles Van Assche
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
@@ -194,6 +197,9 @@ struct MathmlOptions
 // generate PNG output.
 struct PurifiedTexOptions
 {
+    // Generate display math instead of inline math
+    bool mDisplayMath;
+
     // Blahtex may use "\usepackage[utf8x]{inputenc}" (which also requires
     // the "ucs" package)
     bool mAllowUcs;
@@ -209,6 +215,7 @@ struct PurifiedTexOptions
     std::wstring mJapaneseFont;
 
     PurifiedTexOptions() :
+        mDisplayMath(false),
         mAllowUcs(false),
         mAllowCJK(false),
         mAllowPreview(false)

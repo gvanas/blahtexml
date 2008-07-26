@@ -4,6 +4,9 @@
 // a TeX to MathML converter designed with MediaWiki in mind
 // Copyright (C) 2006, David Harvey
 //
+// blahtexml (version 0.6)
+// Copyright (C) 2007-2008, Gilles Van Assche
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
@@ -1275,6 +1278,13 @@ wishful_hash_map<wstring, wstring> gNegationTable(
     END_ARRAY(gNegationArray)
 );
 
+bool onlyPlainLatinLetters(const wstring& text)
+{
+    for(wstring::const_iterator i=text.begin(); i!=text.end(); ++i)
+        if ((((*i) < L'a') || ((*i) > L'z')) && (((*i) < L'A') || ((*i) > L'Z')))
+            return false;
+    return true;
+}
 
 void Row::Optimise()
 {
@@ -1372,6 +1382,8 @@ void Row::Optimise()
                     // * both are SymbolText, or
                     // * both are SymbolIdentifier and their fonts are both
                     //   normal (this case covers things like <mi>sin</mi>)
+                    //   and are made of plain (non-accented) Latin letters
+                    //   (to avoid merging \hbar and \Phi for instance)
                     
                     Symbol* currentCoreAsSymbol =
                         dynamic_cast<Symbol*>(currentCore);
@@ -1409,6 +1421,10 @@ void Row::Optimise()
                                 &&
                                 lastNonSpaceAsSymbol->mFont ==
                                     cMathmlFontNormal
+                                &&
+                                onlyPlainLatinLetters(lastNonSpaceAsSymbol->mText)
+                                &&
+                                onlyPlainLatinLetters(currentCoreAsSymbol->mText)
                             )
                         )
                     )
@@ -1419,7 +1435,7 @@ void Row::Optimise()
                         
                         if (lastSpace != mChildren.end())
                             mChildren.erase(lastSpace);
-                        
+
                         lastNonSpaceAsSymbol->mText +=
                             currentCoreAsSymbol->mText;
 

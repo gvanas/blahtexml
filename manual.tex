@@ -17,7 +17,7 @@
 \usepackage{longtable}
 \usepackage{amsmath, amssymb}
 
-\newcommand{\blahtexversion}{0.5}
+\newcommand{\blahtexversion}{0.6}
 \newcommand{\texcommand}[1]{\textbackslash{}#1}
 \newcommand{\mylink}[1]{\htmladdnormallink{\texttt{#1}}{#1}}
 
@@ -39,7 +39,7 @@
 
 \vskip 1.6cm
 
-{\Large blahtex and blahtexml version \blahtexversion{} manual}
+{\Large Blahtex and Blahtexml version \blahtexversion{} manual}
 
 \vskip 0.8cm
 
@@ -70,22 +70,11 @@ in the blahtex source distribution.
 \section{Introduction}
 
 \begin{latexonly}
-This is the manual for blahtex version \blahtexversion. The most up-to-date information about blahtex, including
-an online HTML version of this document, is available at \texttt{www.blahtex.org}.
-
-This manual also contains information regarding the blahtex extension \emph{blahtexml}, which converts
-all equations from an XML file given at input.
-The most up-to-date information about blahtexml is available at \texttt{gva.noekeon.org/blahtexml}.
+This is the manual for blahtex and blahtexml version \blahtexversion. The most up-to-date information about blahtex and blahtexml is available at \texttt{gva.noekeon.org/blahtexml/}.
 \end{latexonly}
 
 \begin{htmlonly}
-This is the manual for blahtex version \blahtexversion. The most up-to-date information about blahtex, including
-a PDF version of this document, is available at \htmladdnormallink{www.blahtex.org}{http://www.blahtex.org/}.
-
-This manual also contains information regarding the blahtex extension \emph{blahtexml}, which converts
-all equations from an XML file given at input.
-The most up-to-date information about blahtexml is available at
-\htmladdnormallink{gva.noekeon.org/blahtexml}{http://gva.noekeon.org/blahtexml}.
+This is the manual for blahtex and blahtexml version \blahtexversion. The most up-to-date information about blahtex and blahtexml is available at \htmladdnormallink{gva.noekeon.org/blahtexml/}{http://gva.noekeon.org/blahtexml/}.
 \end{htmlonly}
 
 \subsection{How this document is organised}
@@ -119,6 +108,14 @@ Blahtex obviously owes a lot to \htmladdnormallink{texvc}{http://en.wikipedia.or
 Blahtex is a work in progress. I hereby solicit {\bf your feedback}, to help me improve it as much as possible.
 
 (It has not escaped the author's attention that every paragraph of this section either begins or ends with the word `blahtex'.)
+
+\subsection{What is blahtexml?}
+
+Blahtexml is source-level superset of blahtex, so blahtexml does everything that blahtex does. In addition, blahtexml is also able to process a whole XML document into another XML document. Instead of converting only one formula at a time, blahtexml converts all the formulas of the given XML file into MathML.
+
+Blahtexml requires one to have the XML parser library Xerces-C 2.x installed, to which blahtexml dynamically links. For those who do not need the blahtexml-specific functionality and/or do not have Xerces-C installed, the original blahtex can still be compiled.
+
+Due to their big overlap, blahtex and blahtexml are maintained together.
 
 \subsection{The origin of the name `blahtex'}
 
@@ -1322,7 +1319,7 @@ Besides reading this document, the interested developer is strongly advised to `
 
 Blahtex has been successfully compiled and run on the following configurations:
 \begin{itemize}
-\item Linux with gcc 4.0.2 20050808 (prerelease)
+\item Linux with gcc 4.0.2 20050808 (prerelease) or with gcc 4.3.1
 \item Mac OS 10.4.5 (PowerPC) with gcc 4.0.1
 \end{itemize}
 
@@ -1437,6 +1434,7 @@ Blahtex pays a lot of attention to spacing, because the MathML defaults (via the
 
 \begin{itemize}
 \item \texttt{--png}. Enables PNG output.
+\item \texttt{--displaymath}. This tells blahtex to render the formula in "display math," for full-size PNGs displayed on their own line. Without this option, the formula is rendered in "inline math".
 \item \texttt{--use-ucs-package}. This tells blahtex it may use the \LaTeX{} \texttt{ucs} package to handle non-ASCII characters. Obviously, it is necessary to install the \texttt{ucs} package before using this option. See Section \ref{sec:non-ascii-characters} for more information.
 \item \texttt{--use-cjk-package}. This tells blahtex it may use the \LaTeX{} \texttt{CJK} package to handle Chinese/Japanese/Korean characters. Obviously, it is necessary to install the \texttt{CJK} package before using this option. See also Section \ref{sec:howto-japanese}.
 \item \texttt{--use-preview-package}. This tells blahtex it may use the \LaTeX{} \texttt{preview} package. Obviously, it is necessary to install the \texttt{preview} package before using this option. With this option enabled, blahtex is able to compute the height and depth of the output PNG image (via dvipng).
@@ -1851,6 +1849,12 @@ The blahtex core is internally Unicode throughout, and works exclusively with wi
 \begin{itemize}
 \item Added input symbol translation.
 \item Improved makefile based on user feedback (Mac compilation, lower optimization level, documentation generation).
+\end{itemize}
+\item Version blahtexml 0.6 (27/July/2008) by GVA
+\begin{itemize}
+\item Fixed compilation issue with GCC 4.3.1.
+\item PNGs can be rendered in "display math" mode (patch by Ari Stern).
+\item Fixed incorrect merging of identifiers such as \verb|\hbar\Phi|.
 \end{itemize}
 \end{itemize}
 

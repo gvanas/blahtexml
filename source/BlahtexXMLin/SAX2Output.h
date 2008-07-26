@@ -1,6 +1,6 @@
 // File "SAX2Output.h"
 //
-// blahtexml (version 0.5)
+// blahtexml (version 0.6)
 // Copyright (C) 2007-2008, Gilles Van Assche
 //
 // This program is free software; you can redistribute it and/or modify

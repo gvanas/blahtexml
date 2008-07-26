@@ -4,6 +4,9 @@
 // a TeX to MathML converter designed with MediaWiki in mind
 // Copyright (C) 2006, David Harvey
 //
+// blahtexml (version 0.6)
+// Copyright (C) 2008, Gilles Van Assche
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
@@ -537,8 +540,11 @@ wstring Manager::GeneratePurifiedTex(
 
     if (options.mAllowPreview)
         output << L"\\begin{preview}\n";
-    
-    output << L"$\n" << latex << L"\n$\n";
+
+    if (options.mDisplayMath)
+        output << L"\\[\n" << latex << L"\n\\]\n";
+    else
+        output << L"$\n" << latex << L"\n$\n";
 
     if (options.mAllowPreview)
         output << L"\\end{preview}\n";

@@ -21,6 +21,7 @@
 #ifndef BLAHTEX_LAYOUTTREE_H
 #define BLAHTEX_LAYOUTTREE_H
 
+#include <memory>
 #include "MathmlNode.h"
 
 namespace blahtex

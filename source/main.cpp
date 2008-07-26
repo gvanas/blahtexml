@@ -4,7 +4,7 @@
 // a TeX to MathML converter designed with MediaWiki in mind
 // Copyright (C) 2006, David Harvey
 //
-// blahtexml (version 0.5)
+// blahtexml (version 0.6)
 // Copyright (C) 2007-2008, Gilles Van Assche
 //
 // This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,8 @@
 #include "UnicodeConverter.h"
 #include "mainPng.h"
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sstream>
 #include <stdexcept>
 
@@ -49,7 +51,7 @@ using namespace blahtex;
 #include "BlahtexXMLin/SAX2Output.h"
 #endif
 
-string gBlahtexVersion = "0.5";
+string gBlahtexVersion = "0.6";
 
 // A single global instance of UnicodeConverter.
 UnicodeConverter gUnicodeConverter;
@@ -90,9 +92,7 @@ void ShowUsage()
 "Blahtex version " << gBlahtexVersion << "\n"
 #endif
 "Copyright (C) 2006, David Harvey\n"
-#ifdef BLAHTEXML_USING_XERCES
 "Copyright (C) 2007-2008, Gilles Van Assche\n"
-#endif
 "\n"
 "This is free software; see the source "
 "for copying conditions. There is NO\n"
@@ -119,6 +119,7 @@ void ShowUsage()
 " --other-encoding { raw | numeric }\n"
 "\n"
 " --png\n"
+" --displaymath\n"
 " --use-ucs-package\n"
 " --use-cjk-package\n"
 " --use-preview-package\n"
@@ -143,7 +144,7 @@ void ShowUsage()
 "\n"
 "\n"
 #endif
-"More information available at www.blahtex.org\n"
+"More information available at http://gva.noekeon.org/blahtexml/\n"
 "\n";
 
     // FIX: need command line option to select output DPI
@@ -336,6 +337,9 @@ int main (int argc, char* const argv[]) {
                 pngDirectory = string(argv[i]);
                 AddTrailingSlash(pngDirectory);
             }
+
+            else if (arg == "--displaymath")
+                interface.mPurifiedTexOptions.mDisplayMath = true;
 
             else if (arg == "--use-ucs-package")
                 interface.mPurifiedTexOptions.mAllowUcs = true;
