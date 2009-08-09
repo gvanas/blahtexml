@@ -2,22 +2,21 @@
 
 % Copyright (c) 2006, David Harvey
 
-% Copyright (C) 2007-2008, Gilles Van Assche
+% Copyright (C) 2007-2009, Gilles Van Assche
 
-% Permission is granted to copy, distribute and/or modify this document
-% under the terms of the GNU Free Documentation License, Version 1.2
-% or any later version published by the Free Software Foundation;
-% with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
-% Texts.  A copy of the license is included in the file GNU-FDL.
+% The text of this manual is licensed under the
+% Creative Commons Attribution license
+% See http://creativecommons.org/licenses/by/3.0/
 
 \documentclass{article}
 \usepackage{html}      % latex2html package
 \usepackage{ucs}       % for \unichar
+\usepackage[utf8x]{inputenc}
 \usepackage{graphicx}
 \usepackage{longtable}
 \usepackage{amsmath, amssymb}
 
-\newcommand{\blahtexversion}{0.6}
+\newcommand{\blahtexversion}{0.7}
 \newcommand{\texcommand}[1]{\textbackslash{}#1}
 \newcommand{\mylink}[1]{\htmladdnormallink{\texttt{#1}}{#1}}
 
@@ -49,33 +48,16 @@
 \vskip 1.6cm
 
 {\footnotesize
-Copyright (c) 2006, David Harvey. Permission is granted to copy, distribute
-and/or modify this document under the terms of the
-\htmladdnormallink{GNU Free Documentation License}{http://www.gnu.org/copyleft/fdl.html},
-Version 1.2 or any later version published by the Free Software Foundation;
-with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
-A copy of the license, and the \LaTeX{} source for this manual, is included
-in the blahtex source distribution.
-}
-
-{\footnotesize
-Copyright (c) 2007-2008, Gilles Van Assche. Permission is granted to copy, distribute and/or modify this document under the terms of the
-\htmladdnormallink{GNU Free Documentation License}{http://www.gnu.org/copyleft/fdl.html},
-Version 1.2 or any later version published by the Free Software Foundation;
-with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
-A copy of the license, and the \LaTeX{} source for this manual, is included
-in the blahtex source distribution.
-}
+Copyright (c) 2006, David Harvey.
+Copyright (c) 2007-2009, Gilles Van Assche.
+The text of this manual is licensed under the \htmladdnormallink{Creative Commons Attribution license}{http://creativecommons.org/licenses/by/3.0/}.}
 
 \section{Introduction}
 
-\begin{latexonly}
-This is the manual for blahtex and blahtexml version \blahtexversion. The most up-to-date information about blahtex and blahtexml is available at \texttt{gva.noekeon.org/blahtexml/}.
-\end{latexonly}
-
-\begin{htmlonly}
-This is the manual for blahtex and blahtexml version \blahtexversion. The most up-to-date information about blahtex and blahtexml is available at \htmladdnormallink{gva.noekeon.org/blahtexml/}{http://gva.noekeon.org/blahtexml/}.
-\end{htmlonly}
+This is the manual for blahtex and blahtexml version \blahtexversion. The most up-to-date information about blahtex and blahtexml is available at
+\begin{center}
+\htmladdnormallink{\texttt{http://gva.noekeon.org/blahtexml/}}{http://gva.noekeon.org/blahtexml/}.
+\end{center}
 
 \subsection{How this document is organised}
 
@@ -99,7 +81,7 @@ Blahtex implements some subset of \TeX{}, \LaTeX{} and AMS-\LaTeX{}, including a
 
 Blahtex is internally Unicode-based. Non-ASCII characters may be used in text mode (e.g.~within \texttt{\texcommand{text}\{...\}} blocks). These will be handled correctly for MathML output. For PNG output, blahtex can currently handle some extended Latin characters (see Section \ref{sec:non-ascii-characters}), and there is experimental support for Cyrillic and Japanese. More scripts may be added in the future.
 
-Blahtex is open source software. The source code is released under the \htmladdnormallink{GNU GPL}{http://www.gnu.org/copyleft/gpl.html} (General Public License). This means that although the source is copyrighted, you may modify it, use it in your own programs, or even sell it, as long as you adhere to the GPL.
+Blahtex is open source software. The source code is released under the \htmladdnormallink{BSD license}{http://www.opensource.org/licenses/bsd-license.php}. This means that although the source is copyrighted, you may modify it, use it in your own programs, or even sell it, as long as you adhere to the terms of the license.
 
 Blahtex is written in C++. It compiles on Linux and Mac OS X systems, but probably is not as portable as it could be (see Section \ref{sec:prerequisites}).
 
@@ -1443,6 +1425,8 @@ Blahtex pays a lot of attention to spacing, because the MathML defaults (via the
 \item \texttt{--shell-dvipng \textit{command}}. Specifies the command to use for running dvipng. Default is just \texttt{dvipng}.
 \item \texttt{--temp-directory \textit{directory}}. Specifies the directory that should be used for the intermediate files used during PNG creation. Default is the current directory.
 \item \texttt{--png-directory \textit{directory}}. Specifies the directory in which the PNG output file should be placed. Default is the current directory.
+\item \texttt{--png-latex-preamble \textit{content}}. Specifies LaTeX content that is inserted before \verb|\begin{document}| in the generated \texttt{.tex} file. This can be used, for instance, to include an additional package, e.g., \verb|\usepackage{mathpazo}|.
+\item \texttt{--png-latex-before-math \textit{content}}. Specifies LaTeX content that is inserted just before the equation (after \verb|\begin{document}|) in the generated \texttt{.tex} file. This can be used, for instance, to select a particular font, e.g., \verb|\fontsize{20}{0}\selectfont|.
 \end{itemize}
 
 \subsubsection{Debugging options}
@@ -1855,6 +1839,16 @@ The blahtex core is internally Unicode throughout, and works exclusively with wi
 \item Fixed compilation issue with GCC 4.3.1.
 \item PNGs can be rendered in "display math" mode (patch by Ari Stern).
 \item Fixed incorrect merging of identifiers such as \verb|\hbar\Phi|.
+\end{itemize}
+\item Version blahtexml 0.7 (3/Aug/2009)
+\begin{itemize}
+\item License changes in agreement with both contributors:
+\begin{itemize}
+\item The source code is released under the BSD license
+\item The text of this manual is released under the Creative Commons Attribution license
+\end{itemize}
+\item For PNG output, LaTeX code can be inserted before purified TeX equations (e.g., to change fonts) (thanks to Mikkel Ricky)
+\item Support for the Ångström symbol $\AA$ (\verb|\AA|) (thanks to Paul Dlug)
 \end{itemize}
 \end{itemize}
 

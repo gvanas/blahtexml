@@ -1,22 +1,19 @@
-// File "XmlEncode.cpp"
-//
-// blahtex (version 0.4.4)
-// a TeX to MathML converter designed with MediaWiki in mind
-// Copyright (C) 2006, David Harvey
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+/*
+blahtex: a TeX to MathML converter designed with MediaWiki in mind
+blahtexml: an extension of blahtex with XML processing in mind
+http://gva.noekeon.org/blahtexml
+
+Copyright (c) 2006, David Harvey
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+    * Neither the names of the authors nor the names of their affiliation may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 #include <iomanip>
 #include <sstream>
@@ -66,8 +63,10 @@ pair<wchar_t, UnicodeNameInfo> gUnicodeNameArray[] =
     make_pair(L'\U000000B4', UnicodeNameInfo(L"acute", L"DiacriticalAcute")),
     make_pair(L'\U000000B6', UnicodeNameInfo(L"para")),
     make_pair(L'\U000000B7', UnicodeNameInfo(L"middot", L"CenterDot")),
+    make_pair(L'\U000000C5', UnicodeNameInfo(L"Aring")),
     make_pair(L'\U000000D7', UnicodeNameInfo(L"times")),
     make_pair(L'\U000000D8', UnicodeNameInfo(L"Oslash")),
+    make_pair(L'\U000000E5', UnicodeNameInfo(L"aring")),
     make_pair(L'\U000000F0', UnicodeNameInfo(L"eth")),
     make_pair(L'\U000000F7', UnicodeNameInfo(L"div", L"divide")),
     make_pair(L'\U00000127', UnicodeNameInfo(L"hstrok")),

@@ -1,5 +1,6 @@
     make_pair(L'\U000000AC', L"\\lnot"),
     make_pair(L'\U000000B1', L"\\pm"),
+    make_pair(L'\U000000C5', L"\\AA"),
     make_pair(L'\U000000D7', L"\\times"),
     make_pair(L'\U000000F7', L"\\div"),
     make_pair(L'\U00000393', L"\\Gamma"),
