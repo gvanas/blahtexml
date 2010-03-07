@@ -3,7 +3,7 @@ blahtex: a TeX to MathML converter designed with MediaWiki in mind
 blahtexml: an extension of blahtex with XML processing in mind
 http://gva.noekeon.org/blahtexml
 
-Copyright (c) 2009, Gilles Van Assche
+Copyright (c) 2010, Gilles Van Assche
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -45,8 +45,13 @@ SAX2Output::~SAX2Output()
 {
 }
 
+#if _XERCES_VERSION >= 30000
+void SAX2Output::writeChars(const XMLByte* const toWrite,
+    const XMLSize_t count, XMLFormatter* const formatter)
+#else
 void SAX2Output::writeChars(const XMLByte* const toWrite,
     const unsigned int count, XMLFormatter* const formatter)
+#endif
 {
     out.write((const char*)toWrite, count);
     out << std::flush;
@@ -73,8 +78,13 @@ void SAX2Output::warning(const SAXParseException& e)
         << ":" << e.getColumnNumber() << " :  " << XercesString(e.getMessage()) << endl;
 }
 
+#if _XERCES_VERSION >= 30000
+void SAX2Output::characters(const XMLCh* const chars,
+    const XMLSize_t length)
+#else
 void SAX2Output::characters(const XMLCh* const chars,
     const unsigned int length)
+#endif
 {
     format.formatBuf(chars, length, XMLFormatter::CharEscapes);
 }
@@ -85,8 +95,13 @@ void SAX2Output::endElement(const XMLCh* const uri,
     format << XMLFormatter::NoEscapes << chOpenAngle << chForwardSlash << qname << chCloseAngle;
 }
 
+#if _XERCES_VERSION >= 30000
+void SAX2Output::ignorableWhitespace(const XMLCh* const chars,
+    const XMLSize_t length)
+#else
 void SAX2Output::ignorableWhitespace(const XMLCh* const chars,
     const unsigned int length)
+#endif
 {
     format.formatBuf(chars, length, XMLFormatter::NoEscapes);
 }

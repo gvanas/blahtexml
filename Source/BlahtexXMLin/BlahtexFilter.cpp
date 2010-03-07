@@ -17,6 +17,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #include "AttributesImpl.h"
 #include "BlahtexFilter.h"
+#include "mainPng.h"
 #include "XercesString.h"
 #include <iostream>
 #include <xercesc/framework/StdInInputSource.hpp>
@@ -101,7 +102,42 @@ void BlahtexFilter::startElement(const XMLCh* const uri, const XMLCh* const loca
                     mathAttributes.addAttribute(display.c_str(), empty.c_str(), display.c_str(), block.c_str(), empty.c_str());
                 SAX2XMLFilterImpl::startElement(MathMLnamespace.c_str(), unprefixedMath.c_str(), prefixedMath.c_str(), mathAttributes);
             }
-            interface.PrintAsSAX2(*this, MathMLprefix, true);
+            if (encloseInMathTag && (annotatePNG || annotateTeX)) {
+                static XercesString unprefixedSemantics("semantics");
+                XercesString prefixedSemantics((MathMLprefix == L"") ? L"semantics" : (MathMLprefix + L":semantics"));
+                static XercesString unprefixedMrow("mrow");
+                XercesString prefixedMrow((MathMLprefix == L"") ? L"mrow" : (MathMLprefix + L":mrow"));
+                static XercesString unprefixedAnnotation("annotation");
+                XercesString prefixedAnnotation((MathMLprefix == L"") ? L"annotation" : (MathMLprefix + L":annotation"));
+                static XercesString encoding("encoding");
+                SAX2XMLFilterImpl::startElement(MathMLnamespace.c_str(), unprefixedSemantics.c_str(), prefixedSemantics.c_str(), emptyAttributes);
+                SAX2XMLFilterImpl::startElement(MathMLnamespace.c_str(), unprefixedMrow.c_str(), prefixedMrow.c_str(), emptyAttributes);
+                interface.PrintAsSAX2(*this, MathMLprefix, true);
+                SAX2XMLFilterImpl::endElement(MathMLnamespace.c_str(), unprefixedMrow.c_str(), prefixedMrow.c_str());
+                if (annotateTeX) {
+                    static XercesString TeX("TeX");
+                    AttributesImpl annotationAttributes;
+                    annotationAttributes.addAttribute(encoding.c_str(), empty.c_str(), encoding.c_str(), TeX.c_str(), empty.c_str());
+                    SAX2XMLFilterImpl::startElement(MathMLnamespace.c_str(), unprefixedAnnotation.c_str(), prefixedAnnotation.c_str(), annotationAttributes);
+                    XercesString purifiedTex(interface.GetPurifiedTexOnly());
+                    SAX2XMLFilterImpl::characters(purifiedTex.data(), purifiedTex.size());
+                    SAX2XMLFilterImpl::endElement(MathMLnamespace.c_str(), unprefixedAnnotation.c_str(), prefixedAnnotation.c_str());
+                }
+                if (annotatePNG) {
+                    static XercesString PNG("image-file-PNG");
+                    wstring purifiedTex = interface.GetPurifiedTex();
+                    PngInfo info = MakePngFile(purifiedTex, "", pngParams);
+                    AttributesImpl annotationAttributes;
+                    annotationAttributes.addAttribute(encoding.c_str(), empty.c_str(), encoding.c_str(), PNG.c_str(), empty.c_str());
+                    SAX2XMLFilterImpl::startElement(MathMLnamespace.c_str(), unprefixedAnnotation.c_str(), prefixedAnnotation.c_str(), annotationAttributes);
+                    XercesString fileName(info.fullFileName.c_str());
+                    SAX2XMLFilterImpl::characters(fileName.data(), fileName.size());
+                    SAX2XMLFilterImpl::endElement(MathMLnamespace.c_str(), unprefixedAnnotation.c_str(), prefixedAnnotation.c_str());
+                }
+                SAX2XMLFilterImpl::endElement(MathMLnamespace.c_str(), unprefixedSemantics.c_str(), prefixedSemantics.c_str());
+            }
+            else
+                interface.PrintAsSAX2(*this, MathMLprefix, true);
             if (encloseInMathTag)
                 SAX2XMLFilterImpl::endElement(MathMLnamespace.c_str(), unprefixedMath.c_str(), prefixedMath.c_str());
             if (!MathMLexistingNamespace)
@@ -166,4 +202,19 @@ void BlahtexFilter::setDesiredMathMLPrefixType(PrefixType aPrefixType, const wst
 {
     desiredMathMLPrefixType = aPrefixType;
     desiredMathMLPrefix = aPrefix;
+}
+
+void BlahtexFilter::setAnnotatePNG(bool anAnnotatePNG)
+{
+    annotatePNG = anAnnotatePNG;
+}
+
+void BlahtexFilter::setAnnotateTeX(bool anAnnotateTeX)
+{
+    annotateTeX = anAnnotateTeX;
+}
+
+void BlahtexFilter::setPngParams(const PngParams& aPngParams)
+{
+    pngParams = aPngParams;
 }

@@ -2,7 +2,7 @@
 
 % Copyright (c) 2006, David Harvey
 
-% Copyright (C) 2007-2009, Gilles Van Assche
+% Copyright (C) 2007-2010, Gilles Van Assche
 
 % The text of this manual is licensed under the
 % Creative Commons Attribution license
@@ -16,7 +16,7 @@
 \usepackage{longtable}
 \usepackage{amsmath, amssymb}
 
-\newcommand{\blahtexversion}{0.7}
+\newcommand{\blahtexversion}{0.8}
 \newcommand{\texcommand}[1]{\textbackslash{}#1}
 \newcommand{\mylink}[1]{\htmladdnormallink{\texttt{#1}}{#1}}
 
@@ -49,7 +49,7 @@
 
 {\footnotesize
 Copyright (c) 2006, David Harvey.
-Copyright (c) 2007-2009, Gilles Van Assche.
+Copyright (c) 2007-2010, Gilles Van Assche.
 The text of this manual is licensed under the \htmladdnormallink{Creative Commons Attribution license}{http://creativecommons.org/licenses/by/3.0/}.}
 
 \section{Introduction}
@@ -95,7 +95,7 @@ Blahtex is a work in progress. I hereby solicit {\bf your feedback}, to help me 
 
 Blahtexml is source-level superset of blahtex, so blahtexml does everything that blahtex does. In addition, blahtexml is also able to process a whole XML document into another XML document. Instead of converting only one formula at a time, blahtexml converts all the formulas of the given XML file into MathML.
 
-Blahtexml requires one to have the XML parser library Xerces-C 2.x installed, to which blahtexml dynamically links. For those who do not need the blahtexml-specific functionality and/or do not have Xerces-C installed, the original blahtex can still be compiled.
+Blahtexml requires one to have the XML parser library Xerces-C 2.x or 3.0 installed, to which blahtexml dynamically links. For those who do not need the blahtexml-specific functionality and/or do not have Xerces-C installed, the original blahtex can still be compiled.
 
 Due to their big overlap, blahtex and blahtexml are maintained together.
 
@@ -1545,7 +1545,7 @@ The blahtexml source code is available from \texttt{http://gva.noekeon.org/blaht
 
 \subsection{System prerequisites}\label{sec:blahtexml-prerequisites}
 
-In addition to the prerequisites of blahtex (see Section~\ref{sec:prerequisites}), blahtexml requires one to have Xerces-C 2.x installed. Xerces-C is an XML parser library and is available at \texttt{http://xerces.apache.org/xerces-c/}. Blahtexml dynamically links to Xerces-C.
+In addition to the prerequisites of blahtex (see Section~\ref{sec:prerequisites}), blahtexml requires one to have Xerces-C 2.x or 3.0 installed. Xerces-C is an XML parser library and is available at \texttt{http://xerces.apache.org/xerces-c/}. Blahtexml dynamically links to Xerces-C.
 
 \subsection{Compiling blahtexml}\label{sec:compiling-blahtexml}
 
@@ -1621,6 +1621,70 @@ yields as output:
 \end{verbatim}
 
 Note that if more than one attribute in the blahtex namespace are present, only one is processed, with \texttt{m} having the highest priority, then \texttt{inline} and finally \texttt{block}.
+
+\subsubsection{Annotating with \TeX{} format}
+
+In parallel to the formula expressed in MathML, the standard allows annotations in other formats. By using the command line option \texttt{--annotate-TeX}, blahtexml produces the formula in \TeX/\LaTeX{} format in an \texttt{annotation} tag, in addition to the MathML format. This way, the output can also be used as the basis to produce a \TeX{} or \LaTeX{} file from the same source in XML.
+
+For instance, consider the following input file:
+\begin{verbatim}
+<?xml version="1.0"?>
+<equations xmlns:b="http://gva.noekeon.org/blahtexml">
+  <equation b:inline="x+y"/>
+</equations>
+\end{verbatim}
+With \texttt{--annotate-TeX}, the output will be:
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<equations xmlns:b="http://gva.noekeon.org/blahtexml">
+  <equation>
+    <math xmlns="http://www.w3.org/1998/Math/MathML">
+      <semantics>
+        <mrow>
+          <mi>x</mi>
+          <mo lspace="0.222em" rspace="0.222em">+</mo>
+          <mi>y</mi>
+        </mrow>
+        <annotation encoding="TeX">x + y</annotation>
+      </semantics>
+    </math>
+  </equation>
+</equations>
+\end{verbatim}
+
+\subsubsection{Annotating with PNG images}
+
+Similarly, the command line option \texttt{--annotate-PNG} instructs blahtexml to produce PNG files in addition ot the MathML output. The file name is put in an \texttt{annotation} tag.
+
+For instance, consider the following input file:
+\begin{verbatim}
+<?xml version="1.0"?>
+<equations xmlns:b="http://gva.noekeon.org/blahtexml">
+  <equation b:inline="x+y"/>
+</equations>
+\end{verbatim}
+With \texttt{--annotate-TeX}, the output will be:
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<equations xmlns:b="http://gva.noekeon.org/blahtexml">
+  <equation>
+    <math xmlns="http://www.w3.org/1998/Math/MathML">
+      <semantics>
+        <mrow>
+          <mi>x</mi>
+          <mo lspace="0.222em" rspace="0.222em">+</mo>
+          <mi>y</mi>
+        </mrow>
+        <annotation encoding="image-file-PNG">
+            ./f05c46190061a618fd432bf5471cc2ab.png
+        </annotation>
+      </semantics>
+    </math>
+  </equation>
+</equations>
+\end{verbatim}
+
+Of course, the command line options \texttt{--annotate-TeX} and \texttt{--annotate-PNG} can be combined, producing two \texttt{annotation} tags in the output.
 
 \subsubsection{MathML namespace in output file}
 
@@ -1849,6 +1913,11 @@ The blahtex core is internally Unicode throughout, and works exclusively with wi
 \end{itemize}
 \item For PNG output, LaTeX code can be inserted before purified TeX equations (e.g., to change fonts) (thanks to Mikkel Ricky)
 \item Support for the Ångström symbol $\AA$ (\verb|\AA|) (thanks to Paul Dlug)
+\end{itemize}
+\item Version blahtexml 0.8 (8/Mar/2010)
+\begin{itemize}
+\item Compatibility with Xerces-C 3.0 has been added.
+\item Annotations with TeX and PNG outputs can be specified with command line options \texttt{--annotate-TeX} and \texttt{--annotate-PNG}.
 \end{itemize}
 \end{itemize}
 

@@ -555,6 +555,27 @@ wstring Manager::GeneratePurifiedTex(
     return output.str();
 }
 
+wstring Manager::GeneratePurifiedTexOnly() const
+{
+    if (!mParseTree.get())
+        throw logic_error(
+            "Parse tree not yet built in Manager::GeneratePurifiedTex"
+        );
+
+    wostringstream os;
+    LatexFeatures features;
+    mParseTree->GetPurifiedTex(os, features, cFontEncodingDefault);
+    wstring temp = os.str();
+    wstring result;
+    bool opening = true;
+    for(unsigned int i=0; i<temp.size(); i++) {
+        if ((!opening) || (temp[i] != ' '))
+            result += temp[i];
+        opening = (temp[i] == '{');
+    }
+    return result;
+}
+
 }
 
 // end of file @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

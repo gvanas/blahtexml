@@ -3,7 +3,7 @@ blahtex: a TeX to MathML converter designed with MediaWiki in mind
 blahtexml: an extension of blahtex with XML processing in mind
 http://gva.noekeon.org/blahtexml
 
-Copyright (c) 2009, Gilles Van Assche
+Copyright (c) 2010, Gilles Van Assche
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -34,32 +34,56 @@ AttributesImpl::AttributesImpl(const Attributes& attributes)
     }
 }
 
+#if _XERCES_VERSION >= 30000
+XMLSize_t AttributesImpl::getLength() const
+#else
 unsigned int AttributesImpl::getLength() const
+#endif
 {
     return theAttributes.size();
 }
 
+#if _XERCES_VERSION >= 30000
+const XMLCh* AttributesImpl::getURI(const XMLSize_t index) const
+#else
 const XMLCh* AttributesImpl::getURI(const unsigned int index) const
+#endif
 {
     return theAttributes[index].uri.c_str();
 }
 
+#if _XERCES_VERSION >= 30000
+const XMLCh* AttributesImpl::getLocalName(const XMLSize_t index) const
+#else
 const XMLCh* AttributesImpl::getLocalName(const unsigned int index) const
+#endif
 {
     return theAttributes[index].localPart.c_str();
 }
 
+#if _XERCES_VERSION >= 30000
+const XMLCh* AttributesImpl::getQName(const XMLSize_t index) const
+#else
 const XMLCh* AttributesImpl::getQName(const unsigned int index) const
+#endif
 {
     return theAttributes[index].qName.c_str();
 }
 
+#if _XERCES_VERSION >= 30000
+const XMLCh* AttributesImpl::getType(const XMLSize_t index) const
+#else
 const XMLCh* AttributesImpl::getType(const unsigned int index) const
+#endif
 {
     return theAttributes[index].type.c_str();
 }
 
+#if _XERCES_VERSION >= 30000
+const XMLCh* AttributesImpl::getValue(const XMLSize_t index) const
+#else
 const XMLCh* AttributesImpl::getValue(const unsigned int index) const
+#endif
 {
     return theAttributes[index].value.c_str();
 }
@@ -79,6 +103,30 @@ int AttributesImpl::getIndex(const XMLCh* const qName ) const
             return i;
     return -1;
 }
+
+#if _XERCES_VERSION >= 30000
+bool AttributesImpl::getIndex(const XMLCh* const uri, const XMLCh* const localPart, XMLSize_t& index) const
+{
+    int temp = getIndex(uri, localPart);
+    if (temp >= 0) {
+        index = temp;
+        return true;
+    }
+    else
+        return false;
+}
+
+bool AttributesImpl::getIndex(const XMLCh* const qName, XMLSize_t& index) const
+{
+    int temp = getIndex(qName);
+    if (temp >= 0) {
+        index = temp;
+        return true;
+    }
+    else
+        return false;
+}
+#endif
 
 const XMLCh* AttributesImpl::getType(const XMLCh* const uri, const XMLCh* const localPart ) const
 {

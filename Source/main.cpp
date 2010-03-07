@@ -4,7 +4,7 @@ blahtexml: an extension of blahtex with XML processing in mind
 http://gva.noekeon.org/blahtexml
 
 Copyright (c) 2006, David Harvey
-Copyright (c) 2009, Gilles Van Assche
+Copyright (c) 2010, Gilles Van Assche
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@ using namespace blahtex;
 #include "BlahtexXMLin/SAX2Output.h"
 #endif
 
-string gBlahtexVersion = "0.7";
+string gBlahtexVersion = "0.8";
 
 // A single global instance of UnicodeConverter.
 UnicodeConverter gUnicodeConverter;
@@ -87,7 +87,7 @@ void ShowUsage()
 "Blahtex version " << gBlahtexVersion << "\n"
 #endif
 "Copyright (C) 2006, David Harvey\n"
-"Copyright (C) 2007-2008, Gilles Van Assche\n"
+"Copyright (C) 2007-2010, Gilles Van Assche\n"
 "\n"
 "This is free software; see the source "
 "for copying conditions. There is NO\n"
@@ -138,6 +138,8 @@ void ShowUsage()
 " --mathml-nsprefix-auto\n"
 " --mathml-nsprefix-none\n"
 " --mathml-nsprefix prefix\n"
+" --annotate-PNG\n"
+" --annotate-TeX\n"
 "\n"
 "\n"
 #endif
@@ -169,18 +171,20 @@ void AddTrailingSlash(string& s)
         s += '/';
 }
 
+PngParams pngParams;
 #ifdef BLAHTEXML_USING_XERCES
 SAX2Output::Doctype outputDoctype = SAX2Output::DoctypeNone;
 string outputPublicID;
 string outputDTD;
 BlahtexFilter::PrefixType MathMLPrefixType = BlahtexFilter::PrefixAuto;
 string MathMLPrefix;
+bool annotatePNG, annotateTeX;
 int batchXMLConversion(blahtex::Interface& interface)
 {
     cerr << "\n"
         "Blahtexml version " << gBlahtexVersion << "\n"
         "Copyright (C) 2006, David Harvey\n"
-        "Copyright (C) 2007-2008, Gilles Van Assche\n"
+        "Copyright (C) 2007-2010, Gilles Van Assche\n"
         "\n"
         "This is free software; see the source "
         "for copying conditions. There is NO\n"
@@ -206,6 +210,9 @@ int batchXMLConversion(blahtex::Interface& interface)
     XercesString _MathMLPrefix(MathMLPrefix.c_str());
     wstring __MathMLPrefix = _MathMLPrefix.convertTowstring();
     parser->setDesiredMathMLPrefixType(MathMLPrefixType, __MathMLPrefix);
+    parser->setAnnotatePNG(annotatePNG);
+    parser->setAnnotateTeX(annotateTeX);
+    parser->setPngParams(pngParams);
 
     int parserErrors = 0;
     int result = 0;
@@ -267,17 +274,19 @@ int main (int argc, char* const argv[]) {
         bool doMathml = false;
 #ifdef BLAHTEXML_USING_XERCES
         bool doXMLinput = false;
+        annotatePNG = false;
+        annotateTeX = false;
 #endif
 
         bool debugLayoutTree  = false;
         bool debugParseTree   = false;
         bool debugPurifiedTex = false;
-        bool deleteTempFiles  = true;
 
-        string shellLatex   = "latex";
-        string shellDvipng  = "dvipng";
-        string tempDirectory = "./";
-        string  pngDirectory = "./";
+        pngParams.deleteTempFiles  = true;
+        pngParams.shellLatex    = "latex";
+        pngParams.shellDvipng   = "dvipng";
+        pngParams.tempDirectory = "./";
+        pngParams.pngDirectory  = "./";
 
         // Process command line arguments
         for (int i = 1; i < argc; i++)
@@ -303,7 +312,7 @@ int main (int argc, char* const argv[]) {
                     throw CommandLineException(
                         "Missing string after \"--shell-latex\""
                     );
-                shellLatex = string(argv[i]);
+                pngParams.shellLatex = string(argv[i]);
             }
 
             else if (arg == "--shell-dvipng")
@@ -312,7 +321,7 @@ int main (int argc, char* const argv[]) {
                     throw CommandLineException(
                         "Missing string after \"--shell-dvipng\""
                     );
-                shellDvipng = string(argv[i]);
+                pngParams.shellDvipng = string(argv[i]);
             }
 
             else if (arg == "--temp-directory")
@@ -321,8 +330,8 @@ int main (int argc, char* const argv[]) {
                     throw CommandLineException(
                         "Missing string after \"--temp-directory\""
                     );
-                tempDirectory = string(argv[i]);
-                AddTrailingSlash(tempDirectory);
+                pngParams.tempDirectory = string(argv[i]);
+                AddTrailingSlash(pngParams.tempDirectory);
             }
 
             else if (arg == "--png-directory")
@@ -331,8 +340,8 @@ int main (int argc, char* const argv[]) {
                     throw CommandLineException(
                         "Missing string after \"--png-directory\""
                     );
-                pngDirectory = string(argv[i]);
-                AddTrailingSlash(pngDirectory);
+                pngParams.pngDirectory = string(argv[i]);
+                AddTrailingSlash(pngParams.pngDirectory);
             }
 
             else if (arg == "--displaymath")
@@ -343,10 +352,10 @@ int main (int argc, char* const argv[]) {
 
             else if (arg == "--use-cjk-package")
                 interface.mPurifiedTexOptions.mAllowCJK = true;
-            
+
             else if (arg == "--use-preview-package")
                 interface.mPurifiedTexOptions.mAllowPreview = true;
-            
+
             else if (arg == "--japanese-font")
             {
                 if (++i == argc)
@@ -469,9 +478,9 @@ int main (int argc, char* const argv[]) {
                         "Illegal string after \"--debug\""
                     );
             }
-            
+
             else if (arg == "--keep-temp-files")
-                deleteTempFiles = false;
+                pngParams.deleteTempFiles = false;
 #ifdef BLAHTEXML_USING_XERCES
             else if (arg == "--xmlin")
                 doXMLinput = true;
@@ -502,6 +511,10 @@ int main (int argc, char* const argv[]) {
                 if (++i == argc) throw CommandLineException("Missing string after \"--mathml-nsprefix\"");
                 MathMLPrefix = argv[i];
             }
+            else if (arg == "--annotate-PNG")
+                annotatePNG = true;
+            else if (arg == "--annotate-TeX")
+                annotateTeX = true;
 #endif
             else if (arg == "--png-latex-preamble") {
                 if (++i == argc) {
@@ -600,15 +613,7 @@ int main (int argc, char* const argv[]) {
                     // if requested.
                     if (doPng)
                     {
-                        PngInfo info = MakePngFile(
-                            purifiedTex,
-                            tempDirectory,
-                            pngDirectory,
-                            "",
-                            shellLatex,
-                            shellDvipng,
-                            deleteTempFiles
-                        );
+                        PngInfo info = MakePngFile(purifiedTex, "", pngParams);
 
                         // The height and depth measurements are only
                         // valid if the "preview" package is used:
@@ -695,14 +700,19 @@ int main (int argc, char* const argv[]) {
     // These indicate incorrect command line syntax:
     catch (CommandLineException& e)
     {
-        cout << "blahtex: " << e.mMessage << " (try \"blahtex --help\")\n";
+        cerr << "blahtex: " << e.mMessage
+#ifdef BLAHTEXML_USING_XERCES
+            << " (try \"blahtexml --help\")\n";
+#else
+            << " (try \"blahtex --help\")\n";
+#endif
     }
 
     // These kind of errors should only occur if the program has been
     // installed incorrectly.
     catch (std::runtime_error& e)
     {
-        cout << "blahtex runtime error: " << e.what() << endl;
+        cerr << "blahtex runtime error: " << e.what() << endl;
     }
 
     return 0;

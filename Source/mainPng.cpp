@@ -4,6 +4,7 @@ blahtexml: an extension of blahtex with XML processing in mind
 http://gva.noekeon.org/blahtexml
 
 Copyright (c) 2006, David Harvey
+Copyright (c) 2010, Gilles Van Assche
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -106,12 +107,8 @@ bool Execute(
 
 PngInfo MakePngFile(
     const wstring& purifiedTex,
-    const string& tempDirectory,
-    const string& pngDirectory,
     const string& pngFilename,
-    const string& shellLatex,
-    const string& shellDvipng,
-    bool deleteTempFiles
+    const PngParams& params
 )
 {
     PngInfo info;
@@ -127,7 +124,7 @@ PngInfo MakePngFile(
     // Send output to tex file.
     {
         ofstream texFile(
-            (tempDirectory + md5 + ".tex").c_str(),
+            (params.tempDirectory + md5 + ".tex").c_str(),
             ios::out | ios::binary
         );
         if (!texFile)
@@ -142,39 +139,39 @@ PngInfo MakePngFile(
     }
 
     // These are temporary files we want deleted when we're done.
-    TemporaryFile  texTemp(tempDirectory + md5 + ".tex",  deleteTempFiles);
-    TemporaryFile  auxTemp(tempDirectory + md5 + ".aux",  deleteTempFiles);
-    TemporaryFile  logTemp(tempDirectory + md5 + ".log",  deleteTempFiles);
-    TemporaryFile  dviTemp(tempDirectory + md5 + ".dvi",  deleteTempFiles);
-    TemporaryFile dataTemp(tempDirectory + md5 + ".data", deleteTempFiles);
+    TemporaryFile  texTemp(params.tempDirectory + md5 + ".tex",  params.deleteTempFiles);
+    TemporaryFile  auxTemp(params.tempDirectory + md5 + ".aux",  params.deleteTempFiles);
+    TemporaryFile  logTemp(params.tempDirectory + md5 + ".log",  params.deleteTempFiles);
+    TemporaryFile  dviTemp(params.tempDirectory + md5 + ".dvi",  params.deleteTempFiles);
+    TemporaryFile dataTemp(params.tempDirectory + md5 + ".data", params.deleteTempFiles);
 
 
     if (!Execute(
-            shellLatex + " " + md5 + ".tex >/dev/null 2>/dev/null",
-            tempDirectory
+            params.shellLatex + " " + md5 + ".tex >/dev/null 2>/dev/null",
+            params.tempDirectory
         )
         ||
-        !FileExists(tempDirectory + md5 + ".dvi")
+        !FileExists(params.tempDirectory + md5 + ".dvi")
     )
         throw blahtex::Exception(L"CannotRunLatex");
 
 
     if (!Execute(
-            shellDvipng + " " + md5 + ".dvi " +
+            params.shellDvipng + " " + md5 + ".dvi " +
                 "--picky --bg Transparent --gamma 1.3 -D 120 -q -T tight " +
                 "--height --depth " +
                 "-o \"" + pngActualFilename +
                 "\" > " + md5 + ".data 2>/dev/null", 
-            tempDirectory
+            params.tempDirectory
         )
         ||
-        !FileExists(tempDirectory + pngActualFilename)
+        !FileExists(params.tempDirectory + pngActualFilename)
     )
         throw blahtex::Exception(L"CannotRunDvipng");
         
     if (rename(
-        (tempDirectory + pngActualFilename).c_str(),
-        (pngDirectory + pngActualFilename).c_str()
+        (params.tempDirectory + pngActualFilename).c_str(),
+        (params.pngDirectory + pngActualFilename).c_str()
     ))
         throw blahtex::Exception(L"CannotWritePngDirectory");
 
@@ -182,7 +179,7 @@ PngInfo MakePngFile(
     // Read the height and depth of the image from dvipng's output.
     {
         ifstream dataFile(
-            (tempDirectory + md5 + ".data").c_str(),
+            (params.tempDirectory + md5 + ".data").c_str(),
             ios::in | ios::binary
         );
         
@@ -204,7 +201,7 @@ PngInfo MakePngFile(
             }
         }
     }
-
+    info.fullFileName = params.pngDirectory + pngActualFilename;
     info.mMd5 = md5;
     return info;
 }

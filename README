@@ -1,9 +1,9 @@
-Blahtex(ml) version 0.7
+Blahtex(ml) version 0.8
 http://gva.noekeon.org/blahtexml
 ======================================
 
 Copyright (c) 2006, David Harvey
-Copyright (c) 2009, Gilles Van Assche
+Copyright (c) 2010, Gilles Van Assche
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -35,9 +35,9 @@ XML file, and to convert each blahtex equation in it into MathML equations.
 Blahtexml is a source-level extension of blahtex, which means that anything
 that works with blahtex also works with blahtexml.
 
-Blahtexml requires Xerces-C 2.x to be installed. If you do not have Xerces-C
-installed, you will not be able to build blahtexml (but you will still be able
-to build and use blahtex of course).
+Blahtexml requires Xerces-C 2.x or 3.0 to be installed. If you do not have
+Xerces-C installed, you will not be able to build blahtexml (but you will
+still be able to build and use blahtex of course).
 
 Brief build instructions (more details in the manual): run one of
 
