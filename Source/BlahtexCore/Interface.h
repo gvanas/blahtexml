@@ -70,7 +70,7 @@ public:
         return mManager.get();
     }
 
-    void ProcessInput(const std::wstring& input);
+    void ProcessInput(const std::wstring& input, bool displayStyle = false);
     std::wstring GetMathml();
     std::wstring GetPurifiedTex();
     std::wstring GetPurifiedTexOnly();

@@ -46,7 +46,7 @@ using namespace blahtex;
 #include "BlahtexXMLin/SAX2Output.h"
 #endif
 
-string gBlahtexVersion = "0.8";
+string gBlahtexVersion = "0.9";
 
 // A single global instance of UnicodeConverter.
 UnicodeConverter gUnicodeConverter;
@@ -106,6 +106,7 @@ void ShowUsage()
 " --texvc-compatible-commands\n"
 "\n"
 " --mathml\n"
+" --displaymath\n"
 " --indented\n"
 " --spacing { strict | moderate | relaxed }\n"
 " --mathml-version-1-fonts\n"
@@ -288,6 +289,8 @@ int main (int argc, char* const argv[]) {
         pngParams.tempDirectory = "./";
         pngParams.pngDirectory  = "./";
 
+        bool displayStyle = false;
+
         // Process command line arguments
         for (int i = 1; i < argc; i++)
         {
@@ -344,8 +347,10 @@ int main (int argc, char* const argv[]) {
                 AddTrailingSlash(pngParams.pngDirectory);
             }
 
-            else if (arg == "--displaymath")
+            else if (arg == "--displaymath") {
                 interface.mPurifiedTexOptions.mDisplayMath = true;
+                displayStyle = true;
+            }
 
             else if (arg == "--use-ucs-package")
                 interface.mPurifiedTexOptions.mAllowUcs = true;
@@ -574,7 +579,7 @@ int main (int argc, char* const argv[]) {
             }
 
             // Build the parse and layout trees.
-            interface.ProcessInput(input);
+            interface.ProcessInput(input, displayStyle);
 
             if (debugParseTree)
             {

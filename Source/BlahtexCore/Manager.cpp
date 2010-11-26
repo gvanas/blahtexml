@@ -310,7 +310,7 @@ Manager::Manager()
     mStrictSpacingRequested = false;
 }
 
-void Manager::ProcessInput(const wstring& input, bool texvcCompatibility)
+void Manager::ProcessInput(const wstring& input, bool texvcCompatibility, bool displayStyle)
 {
     // Here are all the commands which get "Reserved" tacked on the end
     // before the MacroProcessor sees them:
@@ -404,7 +404,7 @@ void Manager::ProcessInput(const wstring& input, bool texvcCompatibility)
     try
     {
         TexProcessingState topState;
-        topState.mStyle = LayoutTree::Node::cStyleText;
+        topState.mStyle = displayStyle ? LayoutTree::Node::cStyleDisplay : LayoutTree::Node::cStyleText;
         topState.mColour = 0;
         mLayoutTree = mParseTree->BuildLayoutTree(topState);
         mLayoutTree->Optimise();

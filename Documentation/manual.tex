@@ -16,7 +16,7 @@
 \usepackage{longtable}
 \usepackage{amsmath, amssymb}
 
-\newcommand{\blahtexversion}{0.8}
+\newcommand{\blahtexversion}{0.9}
 \newcommand{\texcommand}[1]{\textbackslash{}#1}
 \newcommand{\mylink}[1]{\htmladdnormallink{\texttt{#1}}{#1}}
 
@@ -1378,6 +1378,7 @@ The basic syntax is: \texttt{blahtex [ options ]}; the command-line options are 
 \item \texttt{--help}. Prints out a list of command-line options.
 \item \texttt{--texvc-compatible-commands}. Enables use of commands that are specific to texvc, but that are not standard \TeX{}/\LaTeX{}/AMS-\LaTeX{} commands (see section \ref{sec:texvc-compatible-commands}).
 \item \texttt{--print-error-messages}. This will print out a list of all error IDs and corresponding messages that blahtex can possibly emit inside an \texttt{<error>} block (see Section \ref{sec:interpreting-output}).
+\item \texttt{--displaymath}. This tells blahtex to render the formula in "display math," for full-size MathML or PNGs displayed on their own line. Without this option, the formula is rendered in "inline math".
 \end{itemize}
 
 \subsubsection{MathML-related options}
@@ -1416,7 +1417,6 @@ Blahtex pays a lot of attention to spacing, because the MathML defaults (via the
 
 \begin{itemize}
 \item \texttt{--png}. Enables PNG output.
-\item \texttt{--displaymath}. This tells blahtex to render the formula in "display math," for full-size PNGs displayed on their own line. Without this option, the formula is rendered in "inline math".
 \item \texttt{--use-ucs-package}. This tells blahtex it may use the \LaTeX{} \texttt{ucs} package to handle non-ASCII characters. Obviously, it is necessary to install the \texttt{ucs} package before using this option. See Section \ref{sec:non-ascii-characters} for more information.
 \item \texttt{--use-cjk-package}. This tells blahtex it may use the \LaTeX{} \texttt{CJK} package to handle Chinese/Japanese/Korean characters. Obviously, it is necessary to install the \texttt{CJK} package before using this option. See also Section \ref{sec:howto-japanese}.
 \item \texttt{--use-preview-package}. This tells blahtex it may use the \LaTeX{} \texttt{preview} package. Obviously, it is necessary to install the \texttt{preview} package before using this option. With this option enabled, blahtex is able to compute the height and depth of the output PNG image (via dvipng).
@@ -1591,13 +1591,14 @@ By calling \texttt{blahtexml --xmlin < example1.xml}, blahtexml will produce the
   <equation>
     <math xmlns="http://www.w3.org/1998/Math/MathML"
         display="block">
+      <mstyle displaystyle="true">
       <mi>exp</mi>[...]
     </math>
   </equation>
 </equations>
 \end{verbatim}
 
-As one can see in this example, the \texttt{inline} attribute produces MathML in inline mode (the default of MathML), while the \texttt{block} attribute produces MathML in block mode by adding the attribute \texttt{display="block"} in the \texttt{math} element.
+As one can see in this example, the \texttt{inline} attribute produces MathML in inline mode (the default of MathML), while the \texttt{block} attribute produces MathML in block mode by adding the attribute \texttt{display="block"} in the \texttt{math} element. When in block mode, the display style is set; this causes, e.g., the sum boundaries to be moved under and over the sum sign.
 
 The \texttt{m} element does not create a \texttt{math} element, but instead puts the MathML content as is. This can be useful if, e.g., one wants to type an equation partly in MathML and partly in blahtex. This is illustrated in the next example, where a blahtex equation is given inside a \texttt{msqrt} MathML element. The input file
 \begin{verbatim}
@@ -1918,6 +1919,11 @@ The blahtex core is internally Unicode throughout, and works exclusively with wi
 \begin{itemize}
 \item Compatibility with Xerces-C 3.0 has been added.
 \item Annotations with TeX and PNG outputs can be specified with command line options \texttt{--annotate-TeX} and \texttt{--annotate-PNG}.
+\end{itemize}
+\item Version blahtexml 0.9 (27/Nov/2010)
+\begin{itemize}
+\item The \texttt{--displaymath} option is now a general option, with an effect on MathML output (not only PNG).
+\item With \texttt{--xmlin}, block equations (i.e, \texttt{<math display="block">}) are set in display style.
 \end{itemize}
 \end{itemize}
 

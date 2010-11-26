@@ -25,10 +25,10 @@ using namespace std;
 namespace blahtex
 {
 
-void Interface::ProcessInput(const wstring& input)
+void Interface::ProcessInput(const wstring& input, bool displayStyle)
 {
     mManager.reset(new Manager);
-    mManager->ProcessInput(input, mTexvcCompatibility);
+    mManager->ProcessInput(input, mTexvcCompatibility, displayStyle);
 }
 
 wstring Interface::GetMathml()

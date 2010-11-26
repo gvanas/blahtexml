@@ -54,7 +54,8 @@ public:
     // command line option "--texvc-compatible-commands".
     void ProcessInput(
         const std::wstring& input,
-        bool texvcCompatibility = false
+        bool texvcCompatibility = false,
+        bool displayStyle = false
     );
 
     // GenerateMathml generates a XML tree containing MathML markup.

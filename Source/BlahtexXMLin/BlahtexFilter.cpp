@@ -73,7 +73,7 @@ void BlahtexFilter::startElement(const XMLCh* const uri, const XMLCh* const loca
         try {
             XercesString inputXerces(attributes.getValue(eqAttrIndex));
             wstring input = inputXerces.convertTowstring();
-            interface.ProcessInput(input);
+            interface.ProcessInput(input, blockMode);
 
             AttributesImpl newAttributes(attributes);
             newAttributes.removeAttribute(eqAttrIndex);
