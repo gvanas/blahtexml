@@ -34,7 +34,7 @@ public:
     // Main function that the caller should use to do a parsing job.
     // Input is a TeX string, output is the root of a parse tree.
     std::auto_ptr<ParseTree::MathNode> DoParse(
-        const std::vector<std::wstring>& input
+        const std::vector<Token>& input
     );
 
     // The parser uses GetMathTokenCode (in math mode) or GetTextTokenCode

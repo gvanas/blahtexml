@@ -40,18 +40,24 @@ wstring StripReservedSuffix(const wstring& input)
         return input;
 }
 
-MacroProcessor::MacroProcessor(const vector<wstring>& input)
+MacroProcessor::MacroProcessor(const vector<Token>& input)
 {
-    copy(input.rbegin(), input.rend(), inserter(mTokens, mTokens.begin()));
+	for (vector<Token>::const_reverse_iterator iter = input.rbegin(); iter != input.rend(); ++iter)
+	{
+		mTokens.push_back(*iter);
+	}
+	
+	mBackIndex = mTokens.size() - 1;
+	
     mCostIncurred = input.size();
     mIsTokenReady = false;
 }
 
 void MacroProcessor::Advance()
 {
-    if (!mTokens.empty())
+    if (mBackIndex >= 0)
     {
-        mTokens.pop_back();
+		mBackIndex--;
         mCostIncurred++;
         mIsTokenReady = false;
     }
@@ -59,25 +65,25 @@ void MacroProcessor::Advance()
 
 void MacroProcessor::SkipWhitespace()
 {
-    while (Peek() == L" ")
+    while (Peek().getValue() == L" ")
         Advance();
 }
 
 void MacroProcessor::SkipWhitespaceRaw()
 {
-    while (!mTokens.empty() && mTokens.back() == L" ")
+    while (mBackIndex >= 0 && mTokens[mBackIndex].getValue() == L" ")
         Advance();
 }
 
 bool MacroProcessor::ReadArgument(vector<wstring>& output)
 {
     SkipWhitespaceRaw();
-    if (mTokens.empty())
+    if (mBackIndex == -1)
         // Missing argument
         return false;
 
-    wstring token = mTokens.back();
-    mTokens.pop_back();
+    wstring token = mTokens[mBackIndex].getValue();
+    mBackIndex--;
     mCostIncurred++;
     if (token == L"}")
         // Argument can't start with "}"
@@ -88,11 +94,11 @@ bool MacroProcessor::ReadArgument(vector<wstring>& output)
         // Keep track of brace nesting depth so we know which is the
         // matching closing brace
         int braceDepth = 1;
-        while (!mTokens.empty())
+        while (mBackIndex >= 0)
         {
             mCostIncurred++;
-            wstring token = mTokens.back();
-            mTokens.pop_back();
+            wstring token = mTokens[mBackIndex].getValue();
+            mBackIndex--;
             if (token == L"{")
                 braceDepth++;
             else if (token == L"}" && --braceDepth == 0)
@@ -111,7 +117,7 @@ bool MacroProcessor::ReadArgument(vector<wstring>& output)
 
 wstring MacroProcessor::Get()
 {
-    wstring token = Peek();
+    wstring token = Peek().getValue();
     Advance();
     return token;
 }
@@ -119,58 +125,58 @@ wstring MacroProcessor::Get()
 void MacroProcessor::HandleNewcommand()
 {
     // pop the "\newcommand" command:
-    mTokens.pop_back();
+    mBackIndex--;
     mCostIncurred++;
 
     // gobble opening brace
     SkipWhitespaceRaw();
-    if (mTokens.empty() || mTokens.back() != L"{")
+    if (mBackIndex == -1 || mTokens[mBackIndex].getValue() != L"{")
         throw Exception(L"MissingOpenBraceAfter", L"\\newcommand");
-    mTokens.pop_back();
+    mBackIndex--;
 
     // grab new command being defined
     SkipWhitespaceRaw();
-    if (mTokens.empty() ||
-        mTokens.back().empty() ||
-        mTokens.back()[0] != L'\\'
+    if (mBackIndex == -1 ||
+        mTokens[mBackIndex].getValue().empty() ||
+        mTokens[mBackIndex].getValue()[0] != L'\\'
     )
         throw Exception(L"MissingCommandAfterNewcommand");
-    wstring newCommand = mTokens.back();
+    wstring newCommand = mTokens[mBackIndex].getValue();
     if (mMacros.count(newCommand) || IsInTokenTables(newCommand))
         throw Exception(
             L"IllegalRedefinition",
             StripReservedSuffix(newCommand)
         );
-    mTokens.pop_back();
+    mBackIndex--;
 
     // gobble close brace
     SkipWhitespaceRaw();
-    if (mTokens.empty())
+    if (mBackIndex == -1)
         throw Exception(L"UnmatchedOpenBrace");
-    if (mTokens.back() != L"}")
+    if (mTokens[mBackIndex].getValue() != L"}")
         throw Exception(L"MissingCommandAfterNewcommand");
-    mTokens.pop_back();
+    mBackIndex--;
 
     Macro& macro = mMacros[newCommand];
 
     SkipWhitespaceRaw();
     // Determine the number of arguments, if specified.
-    if (!mTokens.empty() && mTokens.back() == L"[")
+    if (mBackIndex >= 0 && mTokens[mBackIndex].getValue() == L"[")
     {
-        mTokens.pop_back();
+        mBackIndex--;
 
         SkipWhitespaceRaw();
-        if (mTokens.empty() || mTokens.back().size() != 1)
+        if (mBackIndex == -1 || mTokens[mBackIndex].getValue().size() != 1)
             throw Exception(L"MissingOrIllegalParameterCount", newCommand);
-        macro.mParameterCount = static_cast<int>(mTokens.back()[0] - L'0');
+        macro.mParameterCount = static_cast<int>(mTokens[mBackIndex].getValue()[0] - L'0');
         if (macro.mParameterCount <= 0 || macro.mParameterCount > 9)
             throw Exception(L"MissingOrIllegalParameterCount", newCommand);
-        mTokens.pop_back();
+        mBackIndex--;
 
         SkipWhitespaceRaw();
-        if (mTokens.empty() || mTokens.back() != L"]")
+        if (mBackIndex == -1 || mTokens[mBackIndex].getValue() != L"]")
             throw Exception(L"UnmatchedOpenBracket");
-        mTokens.pop_back();
+        mBackIndex--;
     }
 
     // Read and store the tokens which make up the macro replacement.
@@ -178,17 +184,17 @@ void MacroProcessor::HandleNewcommand()
         throw Exception(L"NotEnoughArguments", L"\\newcommand");
 }
 
-wstring MacroProcessor::Peek()
+Token & MacroProcessor::Peek()
 {
-    while (!mTokens.empty())
+    while (mBackIndex >= 0)
     {
         // This is the only place that we check that the user hasn't
         // exceeded the token limit.
-        if (mTokens.size() + (++mCostIncurred) >= cMaxParseCost)
+        if ((mBackIndex + 1) + (++mCostIncurred) >= cMaxParseCost)
             throw Exception(L"TooManyTokens");
 
         if (mIsTokenReady)
-            return mTokens.back();
+            return mTokens[mBackIndex];
 
         // "\sqrt" needs special handling due to its optional argument.
         // Something like "\sqrtReserved{x}" gets converted to "\sqrt{x}".
@@ -201,52 +207,59 @@ wstring MacroProcessor::Peek()
         //
         // We need to take into account grouping braces,
         // e.g. "\sqrt[{]}]{2}" should be valid.
-        if (mTokens.back() == L"\\sqrtReserved")
+        if (mTokens[mBackIndex].getValue() == L"\\sqrtReserved")
         {
-            mTokens.pop_back();
+            mBackIndex--;
 
             SkipWhitespaceRaw();
-            if (!mTokens.empty() && mTokens.back() == L"[")
+            if (mBackIndex >= 0 && mTokens[mBackIndex].getValue() == L"[")
             {
-                mTokens.back() = L"{";
+                mTokens[mBackIndex].setValue(L"{");
 
-                vector<wstring>::reverse_iterator ptr = mTokens.rbegin();
-                ptr++;
+#warning TODO: test this
+				vector<Token>::iterator ptr = mTokens.begin() + mBackIndex + 1;
 
                 int braceDepth = 0;
-                while (ptr != mTokens.rend() &&
-                    (braceDepth > 0 || *ptr != L"]")
+                while (ptr != mTokens.begin() &&
+                    (braceDepth > 0 || (*ptr).getValue() != L"]")
                 )
                 {
                     mCostIncurred++;
-                    if (*ptr == L"{")
+                    if ((*ptr).getValue() == L"{")
                         braceDepth++;
-                    else if (*ptr == L"}")
+                    else if ((*ptr).getValue() == L"}")
                     {
                         if (--braceDepth < 0)
                             throw Exception(L"UnmatchedCloseBrace");
                     }
-                    ptr++;
+                    ptr--;
                 }
-                if (ptr == mTokens.rend())
+                if (ptr == mTokens.begin())
                     throw Exception(L"UnmatchedOpenBracket");
-                if (*ptr != L"]")
+                if ((*ptr).getValue() != L"]")
                     throw Exception(L"NotEnoughArguments", L"\\sqrt");
-                *ptr = L"}";
-                mTokens.push_back(L"\\rootReserved");
+                (*ptr).setValue(L"}");
+				
+#warning TODO: actually store the token range and test this
+				mTokens.insert(mTokens.begin() + (mBackIndex + 1), Token(L"\\rootReserved", 0, 0));
+				mBackIndex++;
                 mIsTokenReady = true;
-                return L"\\rootReserved";
+				
+				return mTokens[mBackIndex];
             }
             else
             {
-                mTokens.push_back(L"\\sqrt");
+#warning TODO: actually store the token range and test this
+				mTokens.insert(mTokens.begin() + (mBackIndex + 1), Token(L"\\sqrt", 0, 0));
+				mBackIndex++;
                 mIsTokenReady = true;
-                return L"\\sqrt";
+				
+				return mTokens[mBackIndex];
             }
         }
         else
         {
-            wstring token = mTokens.back();
+            wstring token = mTokens[mBackIndex].getValue();
             wishful_hash_map<wstring, Macro>::const_iterator
                 macroPtr = mMacros.find(token);
             if (macroPtr == mMacros.end())
@@ -254,11 +267,11 @@ wstring MacroProcessor::Peek()
                 // In this case it's not "\sqrt" and not a macro, so
                 // we're finished here.
                 mIsTokenReady = true;
-                return token;
+                return mTokens[mBackIndex];
             }
 
             const Macro& macro = macroPtr->second;
-            mTokens.pop_back();
+            mBackIndex--;
 
             // It's a macro. Determines the arguments to substitute in....
             vector<vector<wstring> > arguments(macro.mParameterCount);
@@ -316,12 +329,29 @@ wstring MacroProcessor::Peek()
                 else
                     output.push_back(*source);
             }
-            copy(output.rbegin(), output.rend(), back_inserter(mTokens));
+			
+#warning TODO: Test this later and includes token ranges
+			for(vector<wstring>::reverse_iterator iter = output.rbegin(); iter != output.rend(); ++iter)
+			{
+				mTokens.push_back(Token(*iter, 0, 0));
+			}
+			
             mCostIncurred += output.size();
         }
     }
+	
+	return EmptyToken;
+}
 
-    return L"";
+Token * MacroProcessor::FindLastInstanceOfToken(const std::wstring & tokenString)
+{
+	for (vector<Token>::reverse_iterator iter = mTokens.rbegin(); iter != mTokens.rend(); ++iter)
+	{
+		if ((*iter).getValue() == tokenString)
+			return &(*iter);
+	}
+	
+	return NULL;
 }
 
 }

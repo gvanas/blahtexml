@@ -940,7 +940,7 @@ Parser::TokenCode Parser::GetTextTokenCode(const wstring& token) const
     throw Exception(L"UnrecognisedCommand", token);
 }
 
-auto_ptr<ParseTree::MathNode> Parser::DoParse(const vector<wstring>& input)
+auto_ptr<ParseTree::MathNode> Parser::DoParse(const vector<Token>& input)
 {
     mTokenSource.reset(new MacroProcessor(input));
 
@@ -948,7 +948,7 @@ auto_ptr<ParseTree::MathNode> Parser::DoParse(const vector<wstring>& input)
     auto_ptr<ParseTree::MathNode> output = ParseMathList();
 
     // ... and check that the closing token is actually the end of input.
-    switch (GetMathTokenCode(mTokenSource->Peek()))
+    switch (GetMathTokenCode(mTokenSource->Peek().getValue()))
     {
         case cEndOfInput:     return output;
         case cEndGroup:       throw Exception(L"UnmatchedCloseBrace");
@@ -979,9 +979,15 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathField()
             auto_ptr<ParseTree::MathNode> field = ParseMathList();
 
             // Gobble closing brace
-            if (mTokenSource->Get() != L"}")
-                throw Exception(L"UnmatchedOpenBrace");
-
+            if (mTokenSource->Get() != L"}") {
+				Token *token = mTokenSource->FindLastInstanceOfToken(L"{");
+				
+				if (token)
+					throw TokenException(L"UnmatchedOpenBrace", *token);
+				else
+					throw Exception(L"UnmatchedOpenBrace");
+			}
+            
             return field;
         }
 
@@ -1002,7 +1008,7 @@ auto_ptr<ParseTree::MathTable> Parser::ParseMathTable()
     {
         auto_ptr<ParseTree::MathNode> entry = ParseMathList();
 
-        switch (GetMathTokenCode(mTokenSource->Peek()))
+        switch (GetMathTokenCode(mTokenSource->Peek().getValue()))
         {
             case cNextCell:
             {
@@ -1132,7 +1138,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
 
     while (true)
     {
-        switch (GetMathTokenCode(mTokenSource->Peek()))
+        switch (GetMathTokenCode(mTokenSource->Peek().getValue()))
         {
             case cEndGroup:
             case cRight:
@@ -1297,7 +1303,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
                 wstring command = mTokenSource->Get();
 
                 mTokenSource->SkipWhitespace();
-                if (mTokenSource->Peek() != L"{")
+                if (mTokenSource->Peek().getValue() != L"{")
                     throw Exception(L"MissingOpenBraceAfter", command);
 
                 output->mChildren.push_back(
@@ -1320,7 +1326,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
 
                 auto_ptr<ParseTree::MathNode> child = ParseMathList();
 
-                if (mTokenSource->Peek() != L"\\right")
+                if (mTokenSource->Peek().getValue() != L"\\right")
                     throw Exception(L"UnmatchedLeft");
 
                 mTokenSource->Advance();
@@ -1388,7 +1394,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
                     new ParseTree::MathList
                 );
 
-                while (mTokenSource->Peek() == L"'")
+                while (mTokenSource->Peek().getValue() == L"'")
                 {
                     superscript->mChildren.push_back(
                         new ParseTree::MathSymbol(L"\\prime")
@@ -1401,7 +1407,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
                 if (target->mUpper.get())
                     throw Exception(L"DoubleSuperscript");
 
-                if (mTokenSource->Peek() == L"^")
+                if (mTokenSource->Peek().getValue() == L"^")
                 {
                     mTokenSource->Advance();
                     superscript->mChildren.push_back(
@@ -1490,7 +1496,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
             {
                 if (!infixCommand.empty())
                     throw Exception(
-                        L"AmbiguousInfix", mTokenSource->Peek()
+                        L"AmbiguousInfix", mTokenSource->Peek().getValue()
                     );
 
                 // When we see an infix command (e.g. "\over"), we do the
@@ -1532,7 +1538,7 @@ auto_ptr<ParseTree::TextNode> Parser::ParseTextField()
             auto_ptr<ParseTree::TextNode> field(
                 new ParseTree::TextGroup(ParseTextList())
             );
-            if (mTokenSource->Peek() != L"}")
+            if (mTokenSource->Peek().getValue() != L"}")
                 throw Exception(L"UnmatchedOpenBrace");
             mTokenSource->Advance();
             return field;
@@ -1551,7 +1557,7 @@ auto_ptr<ParseTree::TextNode> Parser::ParseTextList()
 
     while (true)
     {
-        switch (GetTextTokenCode(mTokenSource->Peek()))
+        switch (GetTextTokenCode(mTokenSource->Peek().getValue()))
         {
             case cEndGroup:
             case cEndOfInput:
@@ -1582,7 +1588,7 @@ auto_ptr<ParseTree::TextNode> Parser::ParseTextList()
                 output->mChildren.push_back(
                     new ParseTree::TextGroup(ParseTextList())
                 );
-                if (mTokenSource->Peek() != L"}")
+                if (mTokenSource->Peek().getValue() != L"}")
                     throw Exception(L"UnmatchedOpenBrace");
                 mTokenSource->Advance();
                 break;

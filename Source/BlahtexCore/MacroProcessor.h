@@ -47,12 +47,12 @@ class MacroProcessor
 {
 public:
     // Input is a vector of strings, one for each input token.
-    MacroProcessor(const std::vector<std::wstring>& input);
+    MacroProcessor(const std::vector<Token>& input);
 
     // Returns the next token on the stack (without removing it), after
     // expanding macros.
     // Returns empty string if there are no tokens left.
-    std::wstring Peek();
+    Token & Peek();
 
     // Same as Peek(), but also removes the token.
     // Returns empty string if there are no tokens left.
@@ -67,6 +67,8 @@ public:
     // Assuming that "\newcommand" has just been seen and popped off the
     // stack, this function processes a subsequent macro definition.
     void HandleNewcommand();
+	
+	Token * FindLastInstanceOfToken(const std::wstring & tokenString);
 
 private:
 
@@ -92,7 +94,8 @@ private:
     wishful_hash_map<std::wstring, Macro> mMacros;
 
     // The token stack; the top of the stack is mTokens.back().
-    std::vector<std::wstring> mTokens;
+    std::vector<Token> mTokens;
+	long long mBackIndex;
 
     // This flag is set if we have already ascertained that the current
     // token doesn't need to undergo macro expansion.

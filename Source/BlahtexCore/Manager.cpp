@@ -51,7 +51,7 @@ bool IsAlphabetic(wchar_t c)
 // * the sequence "\begin   {  stuff  }" gets stored as the single token
 //   "\begin{  stuff  }". Note that whitespace is preserved between the
 //   braces but not between "\begin" and "{". Similarly for "\end".
-void Tokenise(const wstring& input, vector<wstring>& output)
+void Tokenise(const wstring& input, vector<Token>& output)
 {
     wstring::const_iterator ptr = input.begin();
 
@@ -60,7 +60,9 @@ void Tokenise(const wstring& input, vector<wstring>& output)
         // merge adjacent whitespace
         if (iswspace(*ptr))
         {
-            output.push_back(L" ");
+			unsigned long long index = std::distance(input.begin(), ptr);
+			
+            output.push_back(Token(L" ", index, 1));
             do
                 ptr++;
             while (ptr != input.end() && iswspace(*ptr));
@@ -71,7 +73,10 @@ void Tokenise(const wstring& input, vector<wstring>& output)
             // Disallow non-printable, non-whitespace ASCII
             if (*ptr < L' ' || *ptr == 0x7F)
                 throw Exception(L"IllegalCharacter");
-            output.push_back(wstring(1, *ptr++));
+			
+			unsigned long long index = std::distance(input.begin(), ptr);
+			
+            output.push_back(Token(wstring(1, *ptr++), index, 1));
         }
         else
         {
@@ -83,9 +88,13 @@ void Tokenise(const wstring& input, vector<wstring>& output)
             if (IsAlphabetic(*ptr))
             {
                 // plain alphabetic commands
+				unsigned long long startPos = std::distance(input.begin(), ptr) - 1;
+				
                 do
                     token += *ptr++;
                 while (ptr != input.end() && IsAlphabetic(*ptr));
+				
+				unsigned long long length = std::distance(input.begin(), ptr) - startPos;
 
                 // Special treatment for "\begin" and "\end"; need to
                 // collapse "\begin  {xyz}" to "\begin{xyz}", and store it
@@ -102,21 +111,34 @@ void Tokenise(const wstring& input, vector<wstring>& output)
                     if (ptr == input.end())
                         throw Exception(L"UnmatchedOpenBrace");
                     token += *ptr++;
+					
+					length = std::distance(input.begin(), ptr) - startPos;
                 }
+				
+				output.push_back(Token(token, startPos, length));
             }
             else if (iswspace(*ptr))
             {
+				unsigned long long startPos = std::distance(input.begin(), ptr) - 1;
+				
                 // commands like "\    "
                 token += L" ";
                 do
                     ptr++;
                 while (ptr != input.end() && iswspace(*ptr));
+				
+				output.push_back(Token(token, startPos, 2));
             }
             // commands like "\," and "\;"
+			
             else
+			{
+				unsigned long long startPos = std::distance(input.begin(), ptr) - 1;
+				
                 token += *ptr++;
-
-            output.push_back(token);
+				
+				output.push_back(Token(token, startPos, 2));
+			}
         }
     }
 }
@@ -288,8 +310,8 @@ wstring Manager::gStandardMacros =
     L"\\newcommand{\\cyrReserved}     [1]{{\\cyr{#1}}}"
 ;
 
-vector<wstring> Manager::gStandardMacrosTokenised;
-vector<wstring> Manager::gTexvcCompatibilityMacrosTokenised;
+vector<Token> Manager::gStandardMacrosTokenised;
+vector<Token> Manager::gTexvcCompatibilityMacrosTokenised;
 
 Manager::Manager()
 {
@@ -298,14 +320,15 @@ Manager::Manager()
 
     // Tokenise the standard macros if it hasn't been done already.
 
-    if (gTexvcCompatibilityMacrosTokenised.empty())
-        Tokenise(
-            gTexvcCompatibilityMacros,
-            gTexvcCompatibilityMacrosTokenised
-        );
-
-    if (gStandardMacrosTokenised.empty())
-        Tokenise(gStandardMacros, gStandardMacrosTokenised);
+#warning TODO: this throws off token ranges
+//    if (gTexvcCompatibilityMacrosTokenised.empty())
+//        Tokenise(
+//            gTexvcCompatibilityMacros,
+//            gTexvcCompatibilityMacrosTokenised
+//        );
+//
+//    if (gStandardMacrosTokenised.empty())
+//        Tokenise(gStandardMacros, gStandardMacrosTokenised);
 
     mStrictSpacingRequested = false;
 }
@@ -350,7 +373,7 @@ void Manager::ProcessInput(const wstring& input, bool texvcCompatibility, bool d
         END_ARRAY(reservedCommandArray)
     );
 
-    vector<wstring> inputTokens;
+    vector<Token> inputTokens;
     Tokenise(input, inputTokens);
 
     mStrictSpacingRequested = false;
@@ -360,29 +383,28 @@ void Manager::ProcessInput(const wstring& input, bool texvcCompatibility, bool d
     //
     // Also search for magic commands (currently the only magic command is
     // "\strictspacing")
-    for (vector<wstring>::iterator
+    for (vector<Token>::iterator
         ptr = inputTokens.begin();
         ptr != inputTokens.end();
         ptr++
     )
     {
-        if (reservedCommandTable.count(*ptr))
-            *ptr += L"Reserved";
+		wstring value = (*ptr).getValue();
 
-        else if (
-            ptr->size() >= 8 &&
-            ptr->substr(ptr->size() - 8, 8) == L"Reserved"
-        )
-            throw Exception(L"ReservedCommand", *ptr);
+        if (reservedCommandTable.count(value))
+			(*ptr).setValue(value + L"Reserved");
 
-        else if (*ptr == L"\\strictspacing")
+        else if (value.size() >= 8 && value.substr(value.size() - 8, 8) == L"Reserved")
+            throw Exception(L"ReservedCommand", value);
+
+        else if (value == L"\\strictspacing")
         {
             mStrictSpacingRequested = true;
-            *ptr = L" ";
+            (*ptr).setValue(L" ");
         }
     }
 
-    vector<wstring> tokens;
+    vector<Token> tokens;
 
     // Append the texvc-compatibility and standard macros where appropriate.
 

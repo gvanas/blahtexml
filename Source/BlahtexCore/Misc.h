@@ -24,6 +24,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <vector>
 #include <string>
 
+#include "Token.h"
+
 
 // I use wishful_hash_set/map wherever I really want to use hash_set/map.
 // Unfortunately hash_set/map is not quite standard enough yet, so for now
@@ -92,7 +94,27 @@ public:
     const std::vector<std::wstring>& GetArgs() const
     {
         return mArgs;
-    }
+	}
+};
+
+
+class TokenException : public Exception
+{
+private:
+	Token mToken;
+	
+public:	
+	TokenException(
+			  const std::wstring & code,
+			  const Token & token
+			  ) : Exception(code, L"", L"", L""), mToken(token)
+	{
+
+	}
+	
+	const Token & getToken() const {
+		return mToken;
+	}
 };
 
 
