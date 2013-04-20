@@ -131,12 +131,13 @@ void Tokenise(const wstring& input, vector<Token>& output)
             }
             // commands like "\," and "\;"
 			
-			#warning TODO: compute ranges
             else
 			{
+				unsigned long long startPos = std::distance(input.begin(), ptr) - 1;
+				
                 token += *ptr++;
 				
-				output.push_back(Token(token, 0, 0));
+				output.push_back(Token(token, startPos, 2));
 			}
         }
     }
