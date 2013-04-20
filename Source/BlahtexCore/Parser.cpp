@@ -979,8 +979,14 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathField()
             auto_ptr<ParseTree::MathNode> field = ParseMathList();
 
             // Gobble closing brace
-            if (mTokenSource->Get() != L"}")
-                throw TokenException(L"UnmatchedOpenBrace", mTokenSource->FindLastInstanceOfToken(L"{"));
+            if (mTokenSource->Get() != L"}") {
+				Token *token = mTokenSource->FindLastInstanceOfToken(L"{");
+				
+				if (token)
+					throw TokenException(L"UnmatchedOpenBrace", *token);
+				else
+					throw Exception(L"UnmatchedOpenBrace");
+			}
             
             return field;
         }

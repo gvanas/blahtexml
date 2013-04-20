@@ -68,7 +68,7 @@ public:
     // stack, this function processes a subsequent macro definition.
     void HandleNewcommand();
 	
-	Token & FindLastInstanceOfToken(const std::wstring & tokenString);
+	Token * FindLastInstanceOfToken(const std::wstring & tokenString);
 
 private:
 

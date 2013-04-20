@@ -7,8 +7,3 @@
 //
 
 #include "Token.h"
-
-namespace blahtex
-{
-	Token EmptyToken = Token(L"", 0, 0);
-}

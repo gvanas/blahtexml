@@ -66,8 +66,6 @@ public:
     }
 };
 
-extern Token EmptyToken;
-
 }
 
 #endif
