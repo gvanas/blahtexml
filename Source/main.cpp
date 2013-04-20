@@ -615,7 +615,7 @@ int main (int argc, char* const argv[]) {
             {
                 if (inputFilePath)
                 {
-                    ifstream inputFile (string(inputFilePath), ifstream::in);
+                    ifstream inputFile (inputFilePath, ifstream::in);
                     
                     if (inputFile.is_open())
                     {
