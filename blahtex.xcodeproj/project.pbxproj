@@ -25,7 +25,22 @@
 		C91FA3D2171CEDDF00085C4C /* UnicodeConverter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91FA3B3171CED0F00085C4C /* UnicodeConverter.cpp */; };
 		C91FA3D3171CEF1100085C4C /* md5.c in Sources */ = {isa = PBXBuildFile; fileRef = C91FA3AE171CED0F00085C4C /* md5.c */; };
 		C91FA3D5171CF05C00085C4C /* InputSymbolTranslation.inc in Sources */ = {isa = PBXBuildFile; fileRef = C91FA38C171CED0F00085C4C /* InputSymbolTranslation.inc */; };
+		C945C45B1722E53500FB26B7 /* blahtex in Copy Binary */ = {isa = PBXBuildFile; fileRef = C91FA3B9171CEDA600085C4C /* blahtex */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C945C45A1722E51800FB26B7 /* Copy Binary */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "${PROJECT_DIR}/Build";
+			dstSubfolderSpec = 0;
+			files = (
+				C945C45B1722E53500FB26B7 /* blahtex in Copy Binary */,
+			);
+			name = "Copy Binary";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		C91FA38A171CED0F00085C4C /* InputSymbolTranslation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = InputSymbolTranslation.cpp; sourceTree = "<group>"; };
@@ -177,6 +192,7 @@
 				C91FA3D4171CEF8B00085C4C /* Run xsltproc */,
 				C91FA3B5171CEDA600085C4C /* Sources */,
 				C91FA3B6171CEDA600085C4C /* Frameworks */,
+				C945C45A1722E51800FB26B7 /* Copy Binary */,
 			);
 			buildRules = (
 			);
