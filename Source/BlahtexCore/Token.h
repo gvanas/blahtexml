@@ -32,7 +32,7 @@ private:
     unsigned long long mStartPos, mLength;
     
 public:
-    Token(const std::wstring value, const unsigned long long startPos, const unsigned long long length)
+    Token(const std::wstring & value, const unsigned long long startPos, const unsigned long long length)
     {
         mValue = value;
         mStartPos = startPos;
@@ -60,7 +60,7 @@ public:
         return mLength;
     }
     
-    void setValue(const std::wstring token)
+    void setValue(const std::wstring & token)
     {
         mValue = token;
     }
