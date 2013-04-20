@@ -319,14 +319,15 @@ Manager::Manager()
 
     // Tokenise the standard macros if it hasn't been done already.
 
-    if (gTexvcCompatibilityMacrosTokenised.empty())
-        Tokenise(
-            gTexvcCompatibilityMacros,
-            gTexvcCompatibilityMacrosTokenised
-        );
-
-    if (gStandardMacrosTokenised.empty())
-        Tokenise(gStandardMacros, gStandardMacrosTokenised);
+#warning TODO: this throws off token ranges
+//    if (gTexvcCompatibilityMacrosTokenised.empty())
+//        Tokenise(
+//            gTexvcCompatibilityMacros,
+//            gTexvcCompatibilityMacrosTokenised
+//        );
+//
+//    if (gStandardMacrosTokenised.empty())
+//        Tokenise(gStandardMacros, gStandardMacrosTokenised);
 
     mStrictSpacingRequested = false;
 }
