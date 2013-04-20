@@ -24,6 +24,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <stdlib.h>
 #include <sstream>
 #include <stdexcept>
+#include <iostream>
+#include <fstream>
 
 #ifdef __APPLE__
 #include <unistd.h>
@@ -33,7 +35,6 @@ using namespace std;
 using namespace blahtex;
 
 #ifdef BLAHTEXML_USING_XERCES
-#include <iostream>
 #include <string.h>
 #include <xercesc/framework/StdInInputSource.hpp>
 #include <xercesc/framework/XMLFormatter.hpp>
@@ -292,8 +293,11 @@ int main (int argc, char* const argv[]) {
         pngParams.shellDvipng   = "dvipng";
         pngParams.tempDirectory = "./";
         pngParams.pngDirectory  = "./";
-
+        
         bool displayStyle = false;
+        
+        const char *inputFilePath = NULL;
+        
 
         // Process command line arguments
         for (int i = 1; i < argc; i++)
@@ -302,6 +306,14 @@ int main (int argc, char* const argv[]) {
 
             if (arg == "--help")
                 ShowUsage();
+            
+            else if (arg == "--input-file")
+            {
+                if (++i == argc)
+                    throw CommandLineException("Missing file path after \"--input-file\"");
+                
+                inputFilePath = argv[i];
+            }
 
             else if (arg == "--print-error-messages")
             {
@@ -553,7 +565,7 @@ int main (int argc, char* const argv[]) {
         if (doXMLinput)
             return batchXMLConversion(interface);
 #endif
-        if (isatty(0))
+        if (isatty(0) && !inputFilePath)
             ShowUsage();
 
         wostringstream mainOutput;
@@ -565,9 +577,28 @@ int main (int argc, char* const argv[]) {
             // Read input file
             string inputUtf8;
             {
-                char c;
-                while (cin.get(c))
-                    inputUtf8 += c;
+                if (inputFilePath)
+                {
+                    ifstream inputFile (string(inputFilePath), ifstream::in);
+                    
+                    if (inputFile.is_open())
+                    {
+                        char c;
+                        while (inputFile.get(c))
+                            inputUtf8 += c;
+                        inputFile.close();
+                    }
+                    
+                    else cout << "Unable to open input file";
+                }
+                
+                else
+                {
+                    char c;
+                    while (cin.get(c))
+                        inputUtf8 += c;
+                    
+                }
             }
 
             // This try block converts UnicodeConverter::Exception into an
