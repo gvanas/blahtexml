@@ -26,6 +26,7 @@
 		C91FA3D3171CEF1100085C4C /* md5.c in Sources */ = {isa = PBXBuildFile; fileRef = C91FA3AE171CED0F00085C4C /* md5.c */; };
 		C91FA3D5171CF05C00085C4C /* InputSymbolTranslation.inc in Sources */ = {isa = PBXBuildFile; fileRef = C91FA38C171CED0F00085C4C /* InputSymbolTranslation.inc */; };
 		C945C45B1722E53500FB26B7 /* blahtex in Copy Binary */ = {isa = PBXBuildFile; fileRef = C91FA3B9171CEDA600085C4C /* blahtex */; };
+		C95E784D1723233600536FD6 /* Token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C95E784C1723233600536FD6 /* Token.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -87,6 +88,7 @@
 		C91FA3B4171CED0F00085C4C /* UnicodeConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnicodeConverter.h; sourceTree = "<group>"; };
 		C91FA3B9171CEDA600085C4C /* blahtex */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = blahtex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C935FC8017225BBC00DA341C /* Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Token.h; sourceTree = "<group>"; };
+		C95E784C1723233600536FD6 /* Token.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Token.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +154,7 @@
 				C91FA39D171CED0F00085C4C /* ParseTree1.cpp */,
 				C91FA39E171CED0F00085C4C /* ParseTree2.cpp */,
 				C91FA39F171CED0F00085C4C /* ParseTree3.cpp */,
+				C95E784C1723233600536FD6 /* Token.cpp */,
 				C935FC8017225BBC00DA341C /* Token.h */,
 				C91FA3A0171CED0F00085C4C /* XmlEncode.cpp */,
 				C91FA3A1171CED0F00085C4C /* XmlEncode.h */,
@@ -268,6 +271,7 @@
 				C91FA3D0171CEDDF00085C4C /* md5Wrapper.cpp in Sources */,
 				C91FA3D1171CEDDF00085C4C /* Messages.cpp in Sources */,
 				C91FA3D2171CEDDF00085C4C /* UnicodeConverter.cpp in Sources */,
+				C95E784D1723233600536FD6 /* Token.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
