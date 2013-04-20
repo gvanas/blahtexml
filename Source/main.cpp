@@ -82,6 +82,42 @@ wstring FormatError(
     return output;
 }
 
+wstring ULLToWstring(unsigned long long number)
+{
+    wstring wstr;
+	
+    stringstream ss;
+    ss << number;
+	
+    string str = ss.str();
+	
+    return wstr.assign(str.begin(), str.end());
+}
+
+wstring FormatTokenError(const blahtex::TokenException & e, const EncodingOptions & options)
+{
+    wstring output = L"<error><id>" + e.GetCode() + L"</id>";
+	
+    for (vector<wstring>::const_iterator arg = e.GetArgs().begin(); arg != e.GetArgs().end(); arg++)
+        output += L"<arg>" + XmlEncode(*arg, options) + L"</arg>";
+    
+    output += L"<message>";
+    output += XmlEncode(GetErrorMessage(e), options);
+    output += L"</message>";
+    
+    output += L"<startPos>";
+    output += ULLToWstring(e.getToken().getStartPos());
+    output += L"</startPos>";
+    
+    output += L"<length>";
+    output += ULLToWstring(e.getToken().getLength());
+    output += L"</length>";
+    
+    output += L"</error>";
+	
+    return output;
+}
+
 // ShowUsage() prints a help screen.
 void ShowUsage()
 {
@@ -589,7 +625,10 @@ int main (int argc, char* const argv[]) {
                         inputFile.close();
                     }
                     
-                    else cout << "Unable to open input file";
+                    else
+					{
+						throw CommandLineException("Could not open the input file!");
+					}
                 }
                 
                 else
@@ -713,12 +752,17 @@ int main (int argc, char* const argv[]) {
             }
         }
 
+        catch (blahtex::TokenException& e)
+        {
+            mainOutput.str(L"");
+            mainOutput << FormatTokenError(e, interface.mEncodingOptions) << endl;
+        }
+        
         // This catches input syntax errors.
         catch (blahtex::Exception& e)
         {
             mainOutput.str(L"");
-            mainOutput << FormatError(e, interface.mEncodingOptions)
-                << endl;
+            mainOutput << FormatError(e, interface.mEncodingOptions) << endl;
         }
 
         cout << "<blahtex>\n"

@@ -118,8 +118,8 @@ private:
 
     // Tokenised version of gStandardMacros and gTexvcCompatibilityMacros
     // (computed only once, when first used):
-    static std::vector<std::wstring> gStandardMacrosTokenised;
-    static std::vector<std::wstring> gTexvcCompatibilityMacrosTokenised;
+    static std::vector<Token> gStandardMacrosTokenised;
+    static std::vector<Token> gTexvcCompatibilityMacrosTokenised;
 };
 
 }
