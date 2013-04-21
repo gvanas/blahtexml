@@ -35,6 +35,11 @@ class BraceErrorTests(ErrorTests):
 		self.validateError("2^5}", "UnmatchedCloseBrace", 3, 1)
 
 
+class CharErrorTests(ErrorTests):
+	def testIllegalFinalBackslash(self):
+		self.validateError("2\\", "IllegalFinalBackslash", 1, 1)
+
+
 if __name__ == '__main__':
 	unittest.main()
 

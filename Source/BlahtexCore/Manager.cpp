@@ -83,8 +83,11 @@ void Tokenise(const wstring& input, vector<Token>& output)
             // tokens starting with backslash
             wstring token = L"\\";
 
-            if (++ptr == input.end())
-                throw Exception(L"IllegalFinalBackslash");
+            if (++ptr == input.end()) {
+				unsigned long long index = std::distance(input.begin(), ptr) - 1;
+				
+                throw TokenException(L"IllegalFinalBackslash", Token(token, index, 1));
+			}
             if (IsAlphabetic(*ptr))
             {
                 // plain alphabetic commands
