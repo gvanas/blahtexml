@@ -124,8 +124,8 @@ private:
     // token. Things like "1", "a", "+" are handled appropriately, as are
     // backslash-prefixed commands listed in gMathTokenTable or
     // gTextTokenTable.
-    TokenCode GetMathTokenCode(const std::wstring& token) const;
-    TokenCode GetTextTokenCode(const std::wstring& token) const;
+    TokenCode GetMathTokenCode(const Token& token) const;
+    TokenCode GetTextTokenCode(const Token& token) const;
     
     // Parses stuff that occurs after "\color", e.g. "  {red}", and checks
     // that the colour is legal. Returns the colour name, e.g. "red".

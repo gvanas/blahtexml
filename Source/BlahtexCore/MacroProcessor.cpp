@@ -122,6 +122,13 @@ wstring MacroProcessor::Get()
     return token;
 }
 
+Token & MacroProcessor::GetToken()
+{
+	Token &token = Peek();
+    Advance();
+    return token;
+}
+
 void MacroProcessor::HandleNewcommand()
 {
     // pop the "\newcommand" command:

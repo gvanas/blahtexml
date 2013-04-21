@@ -40,6 +40,11 @@ class CharErrorTests(ErrorTests):
 		self.validateError("2\\", "IllegalFinalBackslash", 1, 1)
 
 
+class RecognitionErrorTests(ErrorTests):
+	def testUnrecognisedCommand(self):
+		self.validateError("2 + \\testingwrongcommand", "UnrecognisedCommand", 4, 20)
+
+
 if __name__ == '__main__':
 	unittest.main()
 
