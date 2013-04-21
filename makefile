@@ -40,6 +40,7 @@ SOURCES = \
 	Source/BlahtexCore/ParseTree2.cpp \
 	Source/BlahtexCore/ParseTree3.cpp \
 	Source/BlahtexCore/MathmlNode.cpp \
+	Source/BlahtexCore/Token.cpp \
 	Source/BlahtexCore/XmlEncode.cpp
 
 SOURCES_XMLIN = $(SOURCES) \
@@ -62,6 +63,7 @@ HEADERS = \
 	Source/BlahtexCore/Parser.h \
 	Source/BlahtexCore/ParseTree.h \
 	Source/BlahtexCore/MathmlNode.h \
+	Source/BlahtexCore/Token.h \
 	Source/BlahtexCore/XmlEncode.h
 
 HEADERS_XMLIN = $(HEADERS) \

@@ -24,6 +24,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <stdlib.h>
 #include <sstream>
 #include <stdexcept>
+#include <iostream>
+#include <fstream>
 
 #ifdef __APPLE__
 #include <unistd.h>
@@ -33,7 +35,6 @@ using namespace std;
 using namespace blahtex;
 
 #ifdef BLAHTEXML_USING_XERCES
-#include <iostream>
 #include <string.h>
 #include <xercesc/framework/StdInInputSource.hpp>
 #include <xercesc/framework/XMLFormatter.hpp>
@@ -78,6 +79,42 @@ wstring FormatError(
     output += L"</message>";
 
     output += L"</error>";
+    return output;
+}
+
+wstring ULLToWstring(unsigned long long number)
+{
+    wstring wstr;
+	
+    stringstream ss;
+    ss << number;
+	
+    string str = ss.str();
+	
+    return wstr.assign(str.begin(), str.end());
+}
+
+wstring FormatTokenError(const blahtex::TokenException & e, const EncodingOptions & options)
+{
+    wstring output = L"<error><id>" + e.GetCode() + L"</id>";
+	
+    for (vector<wstring>::const_iterator arg = e.GetArgs().begin(); arg != e.GetArgs().end(); arg++)
+        output += L"<arg>" + XmlEncode(*arg, options) + L"</arg>";
+    
+    output += L"<message>";
+    output += XmlEncode(GetErrorMessage(e), options);
+    output += L"</message>";
+    
+    output += L"<startPos>";
+    output += ULLToWstring(e.getToken().getStartPos());
+    output += L"</startPos>";
+    
+    output += L"<length>";
+    output += ULLToWstring(e.getToken().getLength());
+    output += L"</length>";
+    
+    output += L"</error>";
+	
     return output;
 }
 
@@ -292,8 +329,11 @@ int main (int argc, char* const argv[]) {
         pngParams.shellDvipng   = "dvipng";
         pngParams.tempDirectory = "./";
         pngParams.pngDirectory  = "./";
-
+        
         bool displayStyle = false;
+        
+        const char *inputFilePath = NULL;
+        
 
         // Process command line arguments
         for (int i = 1; i < argc; i++)
@@ -302,6 +342,14 @@ int main (int argc, char* const argv[]) {
 
             if (arg == "--help")
                 ShowUsage();
+            
+            else if (arg == "--input-file")
+            {
+                if (++i == argc)
+                    throw CommandLineException("Missing file path after \"--input-file\"");
+                
+                inputFilePath = argv[i];
+            }
 
             else if (arg == "--print-error-messages")
             {
@@ -553,7 +601,7 @@ int main (int argc, char* const argv[]) {
         if (doXMLinput)
             return batchXMLConversion(interface);
 #endif
-        if (isatty(0))
+        if (isatty(0) && !inputFilePath)
             ShowUsage();
 
         wostringstream mainOutput;
@@ -565,9 +613,31 @@ int main (int argc, char* const argv[]) {
             // Read input file
             string inputUtf8;
             {
-                char c;
-                while (cin.get(c))
-                    inputUtf8 += c;
+                if (inputFilePath)
+                {
+                    ifstream inputFile (inputFilePath, ifstream::in);
+                    
+                    if (inputFile.is_open())
+                    {
+                        char c;
+                        while (inputFile.get(c))
+                            inputUtf8 += c;
+                        inputFile.close();
+                    }
+                    
+                    else
+					{
+						throw CommandLineException("Could not open the input file!");
+					}
+                }
+                
+                else
+                {
+                    char c;
+                    while (cin.get(c))
+                        inputUtf8 += c;
+                    
+                }
             }
 
             // This try block converts UnicodeConverter::Exception into an
@@ -682,12 +752,17 @@ int main (int argc, char* const argv[]) {
             }
         }
 
+        catch (blahtex::TokenException& e)
+        {
+            mainOutput.str(L"");
+            mainOutput << FormatTokenError(e, interface.mEncodingOptions) << endl;
+        }
+        
         // This catches input syntax errors.
         catch (blahtex::Exception& e)
         {
             mainOutput.str(L"");
-            mainOutput << FormatError(e, interface.mEncodingOptions)
-                << endl;
+            mainOutput << FormatError(e, interface.mEncodingOptions) << endl;
         }
 
         cout << "<blahtex>\n"
