@@ -951,7 +951,9 @@ auto_ptr<ParseTree::MathNode> Parser::DoParse(const vector<Token>& input)
     switch (GetMathTokenCode(mTokenSource->Peek().getValue()))
     {
         case cEndOfInput:     return output;
-        case cEndGroup:       throw Exception(L"UnmatchedCloseBrace");
+        case cEndGroup: {
+			throw TokenException(L"UnmatchedCloseBrace", mTokenSource->Peek());
+		}
         case cRight:          throw Exception(L"UnmatchedRight");
         case cNextCell:       throw Exception(L"UnexpectedNextCell");
         case cNextRow:        throw Exception(L"UnexpectedNextRow");

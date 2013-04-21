@@ -345,10 +345,10 @@ Token & MacroProcessor::Peek()
 
 Token * MacroProcessor::FindLastInstanceOfToken(const std::wstring & tokenString)
 {
-	for (vector<Token>::reverse_iterator iter = mTokens.rbegin(); iter != mTokens.rend(); ++iter)
+	for (long n = mBackIndex+1;  n < mTokens.size(); n++)
 	{
-		if ((*iter).getValue() == tokenString)
-			return &(*iter);
+		if (mTokens[n].getValue() == tokenString)
+			return &mTokens[n];
 	}
 	
 	return NULL;
