@@ -83,6 +83,32 @@ class ExpressionTests(OutputTests):
 		"""
 		
 		self.validateXMLTree("n = 1, ... , k - 1", output)
+	
+	def testExpr3(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><mi>n</mi><mo>&#8800;</mo><mn>3</mn></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("n \\neq 3", output)
+	
+	def testExpr4(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><mi>x</mi><mi>y</mi><mo>=</mo><mi>s</mi><mi>t</mi></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("xy = st", output)
 
 
 class EquationTests(OutputTests):
@@ -139,6 +165,21 @@ class SymbolTests(OutputTests):
 		"""
 		
 		self.validateXMLTree("\\theta(2^h)", output)
+
+
+class VariableTests(OutputTests):
+	def testVariables(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><mi>x</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>s</mi><mo>,</mo><mi>t</mi><mo>,</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo>&#x2208;</mo><mi mathvariant="double-struck">R</mi></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("x, y, s, t, m, n \\in \\mathbb{R}", output)
 
 if __name__ == '__main__':
 	unittest.main()
