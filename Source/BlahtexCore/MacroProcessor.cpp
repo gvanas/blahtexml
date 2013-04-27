@@ -337,7 +337,7 @@ Token & MacroProcessor::Peek()
                     output.push_back(*source);
             }
 			
-#warning TODO: Test this later and includes token ranges
+#warning TODO: include token ranges
 			for(vector<wstring>::reverse_iterator iter = output.rbegin(); iter != output.rend(); ++iter)
 			{
 				mTokens.insert(mTokens.begin() + mBackIndex + 1, Token(*iter, 0, 0));
