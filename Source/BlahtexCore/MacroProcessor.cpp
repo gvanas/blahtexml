@@ -340,7 +340,8 @@ Token & MacroProcessor::Peek()
 #warning TODO: Test this later and includes token ranges
 			for(vector<wstring>::reverse_iterator iter = output.rbegin(); iter != output.rend(); ++iter)
 			{
-				mTokens.push_back(Token(*iter, 0, 0));
+				mTokens.insert(mTokens.begin() + mBackIndex + 1, Token(*iter, 0, 0));
+				mBackIndex++;
 			}
 			
             mCostIncurred += output.size();
