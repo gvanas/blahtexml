@@ -137,6 +137,19 @@ class EquationTests(OutputTests):
 		"""
 		
 		self.validateXMLTree("\\theta(n) = \\theta(2^{h+1} - 1)", output)
+	
+	def testEq3(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><mi>S</mi><mo>=</mo><mi>G</mi><mo>-</mo><mo stretchy="false">{</mo><mi>e</mi><mo stretchy="false">}</mo></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("S = G - \\{ e \\}", output)
 
 
 class SymbolTests(OutputTests):
