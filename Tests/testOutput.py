@@ -180,6 +180,46 @@ class VariableTests(OutputTests):
 		"""
 		
 		self.validateXMLTree("x, y, s, t, m, n \\in \\mathbb{R}", output)
+	
+	def testVariables2(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><mi>f</mi><mo>:</mo><mi mathvariant="double-struck">N</mi><mo>&#x2192;</mo><mi mathvariant="double-struck">N</mi></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("f : \\mathbb{N} \\rightarrow \\mathbb{N}", output)
+		
+	def testVariables3(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><mi>g</mi><mo>:</mo><msup><mi mathvariant="double-struck">N</mi><mn>2</mn></msup><mo>&#x2192;</mo><mi mathvariant="double-struck">Z</mi></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("g : \\mathbb{N}^2 \\rightarrow \\mathbb{Z}", output)
+
+class FunctionTests(OutputTests):
+	def testFunction(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><mi>g</mi><mo stretchy="false">(</mo><mi>m</mi><mo>,</mo><mi>n</mi><mo stretchy="false">)</mo><mo>=</mo><mo stretchy="false">(</mo><mn>2</mn><mo>-</mo><mi>n</mi><mo stretchy="false">)</mo><mi>f</mi><mo stretchy="false">(</mo><mi>m</mi><mo stretchy="false">)</mo></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("g(m,n) = (2 - n) f(m)", output)
 
 if __name__ == '__main__':
 	unittest.main()
