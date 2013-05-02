@@ -150,7 +150,19 @@ class EquationTests(OutputTests):
 		"""
 		
 		self.validateXMLTree("S = G - \\{ e \\}", output)
-
+	
+	def testEqLong(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><mn>2</mn><mo stretchy="false">(</mo><mi>k</mi><mo>-</mo><mn>1</mn><mo stretchy="false">)</mo><mo>-</mo><mn>1</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>2</mn><mi>k</mi><mo>-</mo><mn>2</mn><mo>-</mo><mn>1</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>2</mn><mi>k</mi><mo>-</mo><mn>1</mn></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("2(k - 1) - 1 + 2 = 2k - 2 - 1 + 2 = 2k - 1", output)
 
 class SymbolTests(OutputTests):
 	def testTheta(self):
@@ -233,6 +245,20 @@ class FunctionTests(OutputTests):
 		"""
 		
 		self.validateXMLTree("g(m,n) = (2 - n) f(m)", output)
+
+class ScriptTests(OutputTests):
+	def testSubscript(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<msub><mi>W</mi><mn>3</mn></msub>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("W_3", output)
 
 if __name__ == '__main__':
 	unittest.main()
