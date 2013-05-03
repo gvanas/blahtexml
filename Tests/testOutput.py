@@ -190,6 +190,19 @@ class SymbolTests(OutputTests):
 		"""
 		
 		self.validateXMLTree("\\theta(2^h)", output)
+	
+	def testFact(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><mn>10</mn><mo>!</mo><mo>-</mo><mi>n</mi><mo>=</mo><mn>11</mn><mo>*</mo><mi>b</mi></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("10! - n = 11*b", output)
 
 
 class VariableTests(OutputTests):
