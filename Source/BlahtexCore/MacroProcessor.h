@@ -57,6 +57,8 @@ public:
     // Same as Peek(), but also removes the token.
     // Returns empty string if there are no tokens left.
     std::wstring Get();
+	
+	Token & GetToken();
 
     // Pops the current token.
     void Advance();

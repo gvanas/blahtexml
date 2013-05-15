@@ -83,8 +83,11 @@ void Tokenise(const wstring& input, vector<Token>& output)
             // tokens starting with backslash
             wstring token = L"\\";
 
-            if (++ptr == input.end())
-                throw Exception(L"IllegalFinalBackslash");
+            if (++ptr == input.end()) {
+				unsigned long long index = std::distance(input.begin(), ptr) - 1;
+				
+                throw TokenException(L"IllegalFinalBackslash", Token(token, index, 1));
+			}
             if (IsAlphabetic(*ptr))
             {
                 // plain alphabetic commands
@@ -320,15 +323,14 @@ Manager::Manager()
 
     // Tokenise the standard macros if it hasn't been done already.
 
-#warning TODO: this throws off token ranges
-//    if (gTexvcCompatibilityMacrosTokenised.empty())
-//        Tokenise(
-//            gTexvcCompatibilityMacros,
-//            gTexvcCompatibilityMacrosTokenised
-//        );
-//
-//    if (gStandardMacrosTokenised.empty())
-//        Tokenise(gStandardMacros, gStandardMacrosTokenised);
+    if (gTexvcCompatibilityMacrosTokenised.empty())
+        Tokenise(
+            gTexvcCompatibilityMacros,
+            gTexvcCompatibilityMacrosTokenised
+        );
+
+    if (gStandardMacrosTokenised.empty())
+        Tokenise(gStandardMacros, gStandardMacrosTokenised);
 
     mStrictSpacingRequested = false;
 }

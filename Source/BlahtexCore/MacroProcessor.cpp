@@ -122,6 +122,13 @@ wstring MacroProcessor::Get()
     return token;
 }
 
+Token & MacroProcessor::GetToken()
+{
+	Token &token = Peek();
+    Advance();
+    return token;
+}
+
 void MacroProcessor::HandleNewcommand()
 {
     // pop the "\newcommand" command:
@@ -330,10 +337,11 @@ Token & MacroProcessor::Peek()
                     output.push_back(*source);
             }
 			
-#warning TODO: Test this later and includes token ranges
+#warning TODO: include token ranges
 			for(vector<wstring>::reverse_iterator iter = output.rbegin(); iter != output.rend(); ++iter)
 			{
-				mTokens.push_back(Token(*iter, 0, 0));
+				mTokens.insert(mTokens.begin() + mBackIndex + 1, Token(*iter, 0, 0));
+				mBackIndex++;
 			}
 			
             mCostIncurred += output.size();
@@ -345,10 +353,10 @@ Token & MacroProcessor::Peek()
 
 Token * MacroProcessor::FindLastInstanceOfToken(const std::wstring & tokenString)
 {
-	for (vector<Token>::reverse_iterator iter = mTokens.rbegin(); iter != mTokens.rend(); ++iter)
+	for (long n = mBackIndex+1;  n < mTokens.size(); n++)
 	{
-		if ((*iter).getValue() == tokenString)
-			return &(*iter);
+		if (mTokens[n].getValue() == tokenString)
+			return &mTokens[n];
 	}
 	
 	return NULL;

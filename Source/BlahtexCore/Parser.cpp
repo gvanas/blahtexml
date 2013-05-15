@@ -837,9 +837,10 @@ bool IsInTokenTables(const wstring& token)
         (gTextTokenTable.count(token) > 0);
 }
 
-Parser::TokenCode Parser::GetMathTokenCode(const wstring& token) const
+Parser::TokenCode Parser::GetMathTokenCode(const Token& token) const
 {
-    wstring translatedToken = translateToken(token);
+	wstring value = token.getValue();
+    wstring translatedToken = translateToken(value);
     wishful_hash_map<wstring, TokenCode>::const_iterator
         output = gMathTokenTable.find(translatedToken);
 
@@ -853,11 +854,11 @@ Parser::TokenCode Parser::GetMathTokenCode(const wstring& token) const
         if (translatedToken == L"%" || translatedToken == L"#" || translatedToken == L"$")
             throw Exception(
                 L"IllegalCommandInMathModeWithHint",
-                token, L"\\" + translatedToken
+                value, L"\\" + translatedToken
             );
 
         else if (translatedToken == L"`" || translatedToken == L"\"")
-            throw Exception(L"IllegalCommandInMathMode", token);
+            throw Exception(L"IllegalCommandInMathMode", value);
 
         throw logic_error(
             "Unexpected illegal character in Parser::GetMathTokenCode"
@@ -867,9 +868,9 @@ Parser::TokenCode Parser::GetMathTokenCode(const wstring& token) const
     if (translatedToken[0] == L'\\')
     {
         if (gTextTokenTable.count(translatedToken))
-            throw Exception(L"IllegalCommandInMathMode", token);
+            throw Exception(L"IllegalCommandInMathMode", value);
         else
-            throw Exception(L"UnrecognisedCommand", token);
+            throw TokenException(L"UnrecognisedCommand", value, token);
     }
 
     if (translatedToken[0] > 0x7F)
@@ -882,13 +883,15 @@ Parser::TokenCode Parser::GetMathTokenCode(const wstring& token) const
     )
         return cSymbol;
 
-    throw Exception(L"UnrecognisedCommand", token);
+    throw Exception(L"UnrecognisedCommand", value);
 }
 
-Parser::TokenCode Parser::GetTextTokenCode(const wstring& token) const
+Parser::TokenCode Parser::GetTextTokenCode(const Token& token) const
 {
+	wstring value = token.getValue();
+	
     wishful_hash_map<wstring, TokenCode>::const_iterator
-        output = gTextTokenTable.find(token);
+        output = gTextTokenTable.find(value);
 
     if (output != gTextTokenTable.end())
     {
@@ -897,47 +900,47 @@ Parser::TokenCode Parser::GetTextTokenCode(const wstring& token) const
 
         // Give the user some helpful hints if they try to use certain
         // illegal commands.
-        if (token == L"&" || token == L"_" || token == L"%"
-            || token == L"#" || token == L"$")
+        if (value == L"&" || value == L"_" || value == L"%"
+            || value == L"#" || value == L"$")
 
             throw Exception(
                 L"IllegalCommandInTextModeWithHint",
-                token, L"\\" + token
+                value, L"\\" + value
             );
 
-        else if (token == L"\\\\")
+        else if (value == L"\\\\")
             throw Exception(
                 L"IllegalCommandInTextModeWithHint",
                 L"\\\\", L"\\textbackslash"
             );
 
-        else if (token == L"^")
+        else if (value == L"^")
             throw Exception(
                 L"IllegalCommandInTextModeWithHint",
                 L"^", L"\\textasciicircum"
             );
 
         else
-            throw Exception(L"IllegalCommandInTextMode", token);
+            throw Exception(L"IllegalCommandInTextMode", value);
     }
 
-    if (token[0] == L'\\')
+    if (value[0] == L'\\')
     {
-        if (gMathTokenTable.count(token))
-            throw Exception(L"IllegalCommandInTextMode", token);
+        if (gMathTokenTable.count(value))
+            throw Exception(L"IllegalCommandInTextMode", value);
         else
-            throw Exception(L"UnrecognisedCommand", token);
+            throw Exception(L"UnrecognisedCommand", value);
     }
 
     if (
-        (token[0] >= L'a' && token[0] <= L'z') ||
-        (token[0] >= L'A' && token[0] <= L'Z') ||
-        (token[0] >= L'0' && token[0] <= L'9') ||
-        (token[0] > 0x7F)
+        (value[0] >= L'a' && value[0] <= L'z') ||
+        (value[0] >= L'A' && value[0] <= L'Z') ||
+        (value[0] >= L'0' && value[0] <= L'9') ||
+        (value[0] > 0x7F)
     )
         return cSymbol;
 
-    throw Exception(L"UnrecognisedCommand", token);
+    throw Exception(L"UnrecognisedCommand", value);
 }
 
 auto_ptr<ParseTree::MathNode> Parser::DoParse(const vector<Token>& input)
@@ -948,10 +951,12 @@ auto_ptr<ParseTree::MathNode> Parser::DoParse(const vector<Token>& input)
     auto_ptr<ParseTree::MathNode> output = ParseMathList();
 
     // ... and check that the closing token is actually the end of input.
-    switch (GetMathTokenCode(mTokenSource->Peek().getValue()))
+    switch (GetMathTokenCode(mTokenSource->Peek()))
     {
         case cEndOfInput:     return output;
-        case cEndGroup:       throw Exception(L"UnmatchedCloseBrace");
+        case cEndGroup: {
+			throw TokenException(L"UnmatchedCloseBrace", mTokenSource->Peek());
+		}
         case cRight:          throw Exception(L"UnmatchedRight");
         case cNextCell:       throw Exception(L"UnexpectedNextCell");
         case cNextRow:        throw Exception(L"UnexpectedNextRow");
@@ -964,9 +969,10 @@ auto_ptr<ParseTree::MathNode> Parser::DoParse(const vector<Token>& input)
 auto_ptr<ParseTree::MathNode> Parser::ParseMathField()
 {
     mTokenSource->SkipWhitespace();
-    wstring command = translateToken(mTokenSource->Get());
+	Token &token = mTokenSource->GetToken();
+    wstring command = translateToken(token.getValue());
 
-    switch (GetMathTokenCode(command))
+    switch (GetMathTokenCode(token))
     {
         case cSymbol:
             return auto_ptr<ParseTree::MathNode>(
@@ -1008,7 +1014,7 @@ auto_ptr<ParseTree::MathTable> Parser::ParseMathTable()
     {
         auto_ptr<ParseTree::MathNode> entry = ParseMathList();
 
-        switch (GetMathTokenCode(mTokenSource->Peek().getValue()))
+        switch (GetMathTokenCode(mTokenSource->Peek()))
         {
             case cNextCell:
             {
@@ -1138,7 +1144,7 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
 
     while (true)
     {
-        switch (GetMathTokenCode(mTokenSource->Peek().getValue()))
+        switch (GetMathTokenCode(mTokenSource->Peek()))
         {
             case cEndGroup:
             case cRight:
@@ -1231,13 +1237,15 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
 
                 auto_ptr<ParseTree::MathTable> table = ParseMathTable();
 
-                wstring endCommand = mTokenSource->Get();
+                Token & endCommand = mTokenSource->GetToken();
+				wstring endCommandValue = endCommand.getValue();
+				
                 if (GetMathTokenCode(endCommand) != cEndEnvironment)
                     throw Exception(L"UnmatchedBegin", beginCommand);
 
-                if (name != endCommand.substr(5, endCommand.size() - 6))
+                if (name != endCommandValue.substr(5, endCommandValue.size() - 6))
                     throw Exception(
-                        L"MismatchedBeginAndEnd", beginCommand, endCommand
+                        L"MismatchedBeginAndEnd", beginCommand, endCommandValue
                     );
 
                 if (name == L"cases")
@@ -1524,13 +1532,13 @@ auto_ptr<ParseTree::MathNode> Parser::ParseMathList()
 auto_ptr<ParseTree::TextNode> Parser::ParseTextField()
 {
     mTokenSource->SkipWhitespace();
-    wstring command = mTokenSource->Get();
+    Token & token = mTokenSource->GetToken();
 
-    switch (GetTextTokenCode(command))
+    switch (GetTextTokenCode(token))
     {
         case cSymbol:
             return auto_ptr<ParseTree::TextNode>(
-                new ParseTree::TextSymbol(command)
+                new ParseTree::TextSymbol(token.getValue())
             );
 
         case cBeginGroup:
@@ -1548,7 +1556,7 @@ auto_ptr<ParseTree::TextNode> Parser::ParseTextField()
             throw Exception(L"MissingOpenBraceAtEnd");
     }
 
-    throw Exception(L"MissingOpenBraceBefore", command);
+    throw Exception(L"MissingOpenBraceBefore", token.getValue());
 }
 
 auto_ptr<ParseTree::TextNode> Parser::ParseTextList()
@@ -1557,7 +1565,7 @@ auto_ptr<ParseTree::TextNode> Parser::ParseTextList()
 
     while (true)
     {
-        switch (GetTextTokenCode(mTokenSource->Peek().getValue()))
+        switch (GetTextTokenCode(mTokenSource->Peek()))
         {
             case cEndGroup:
             case cEndOfInput:

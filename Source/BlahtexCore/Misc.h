@@ -104,13 +104,11 @@ private:
 	Token mToken;
 	
 public:	
-	TokenException(
-			  const std::wstring & code,
-			  const Token & token
-			  ) : Exception(code, L"", L"", L""), mToken(token)
-	{
-
-	}
+	TokenException(const std::wstring & code, const Token & token)
+					: Exception(code, L"", L"", L""), mToken(token) {}
+	
+	TokenException(const std::wstring & code, const std::wstring & arg1, const Token & token)
+					: Exception(code, arg1, L"", L""), mToken(token) {}
 	
 	const Token & getToken() const {
 		return mToken;
