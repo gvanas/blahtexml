@@ -151,6 +151,20 @@ class EquationTests(OutputTests):
 		
 		self.validateXMLTree("S = G - \\{ e \\}", output)
 	
+	def testEq4(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><msub><mi>&#x03BB;</mi><mi>S</mi></msub><mo>=</mo><mn>3</mn><mi>k</mi><mo>,</mo><mi>k</mi><mo>&#x2208;</mo><msup><mi mathvariant="double-struck">Z</mi><mo>+</mo></msup></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("\\lambda_S = 3k, k \\in \\mathbb{Z}^+", output)
+		self.validateXMLTree("\\lambda_S = 3k, k \\in \\mathbb{Z}^{+}", output)
+	
 	def testEqLong(self):
 		output = """
 			<blahtex>
