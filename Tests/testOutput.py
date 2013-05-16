@@ -203,6 +203,19 @@ class SymbolTests(OutputTests):
 		"""
 		
 		self.validateXMLTree("10! - n = 11*b", output)
+	
+	def testCup(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><mo stretchy="false">|</mo><mi>A</mi><mo>&#x222A;</mo><mi>B</mi><mo>&#x222A;</mo><mi>C</mi><mo stretchy="false">|</mo><mo>=</mo><mo stretchy="false">|</mo><mi>A</mi><mo stretchy="false">|</mo><mo>+</mo><mo stretchy="false">|</mo><mi>B</mi><mo stretchy="false">|</mo><mo>+</mo><mo stretchy="false">|</mo><mi>C</mi><mo stretchy="false">|</mo><mo>-</mo><mo stretchy="false">|</mo><mi>A</mi><mo>&#x2229;</mo><mi>B</mi><mo stretchy="false">|</mo><mo>-</mo><mo stretchy="false">|</mo><mi>B</mi><mo>&#x2229;</mo><mi>C</mi><mo stretchy="false">|</mo><mo>-</mo><mo stretchy="false">|</mo><mi>A</mi><mo>&#x2229;</mo><mi>C</mi><mo stretchy="false">|</mo><mo>+</mo><mo stretchy="false">|</mo><mi>A</mi><mo>&#x2229;</mo><mi>B</mi><mo>&#x2229;</mo><mi>C</mi><mo stretchy="false">|</mo></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("| A \cup B \cup C | = | A | + | B | + | C | - | A \cap B | - | B \cap C | - | A \cap C | + | A \cap B \cap C |", output)
 
 
 class VariableTests(OutputTests):
