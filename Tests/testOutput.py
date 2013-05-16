@@ -102,6 +102,19 @@ class ExpressionTests(OutputTests):
 			<blahtex>
 			<mathml>
 			<markup>
+			<mrow><mo>&#x2264;</mo><mi>m</mi></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("\\leq m", output)
+	
+	def testExpr5(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
 			<mrow><mi>x</mi><mi>y</mi><mo>=</mo><mi>s</mi><mi>t</mi></mrow>
 			</markup>
 			</mathml>
