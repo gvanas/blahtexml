@@ -178,6 +178,19 @@ class EquationTests(OutputTests):
 		self.validateXMLTree("\\lambda_S = 3k, k \\in \\mathbb{Z}^+", output)
 		self.validateXMLTree("\\lambda_S = 3k, k \\in \\mathbb{Z}^{+}", output)
 	
+	def testEq5(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><msub><mi>&#x03BB;</mi><mrow><mi>S</mi><mn>2</mn></mrow></msub><mo>=</mo><mn>3</mn><mi>b</mi></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("\\lambda_{S2} = 3b", output)
+	
 	def testEqLong(self):
 		output = """
 			<blahtex>
