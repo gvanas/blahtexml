@@ -28,9 +28,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <stdlib.h>
 #include <sstream>
 
-#ifdef __APPLE__
 #include <unistd.h>
-#endif
 
 using namespace std;
 using namespace blahtex;
