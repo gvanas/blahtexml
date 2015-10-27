@@ -9,7 +9,7 @@ class ErrorTests(unittest.TestCase):
 		print("")
 	
 	def validateError(self, input, errorId, startPos, length):
-		p = Popen(['/Users/Matt/Projects/blahtexml/Build/blahtex', '--mathml'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+		p = Popen(['../Build/blahtex', '--mathml'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
 		
 		p.stdin.write(input)
 		p.stdin.close()

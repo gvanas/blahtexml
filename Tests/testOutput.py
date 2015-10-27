@@ -102,6 +102,19 @@ class ExpressionTests(OutputTests):
 			<blahtex>
 			<mathml>
 			<markup>
+			<mrow><mo>&#x2264;</mo><mi>m</mi></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("\\leq m", output)
+	
+	def testExpr5(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
 			<mrow><mi>x</mi><mi>y</mi><mo>=</mo><mi>s</mi><mi>t</mi></mrow>
 			</markup>
 			</mathml>
@@ -150,6 +163,33 @@ class EquationTests(OutputTests):
 		"""
 		
 		self.validateXMLTree("S = G - \\{ e \\}", output)
+	
+	def testEq4(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><msub><mi>&#x03BB;</mi><mi>S</mi></msub><mo>=</mo><mn>3</mn><mi>k</mi><mo>,</mo><mi>k</mi><mo>&#x2208;</mo><msup><mi mathvariant="double-struck">Z</mi><mo>+</mo></msup></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("\\lambda_S = 3k, k \\in \\mathbb{Z}^+", output)
+		self.validateXMLTree("\\lambda_S = 3k, k \\in \\mathbb{Z}^{+}", output)
+	
+	def testEq5(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><msub><mi>&#x03BB;</mi><mrow><mi>S</mi><mn>2</mn></mrow></msub><mo>=</mo><mn>3</mn><mi>b</mi></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("\\lambda_{S2} = 3b", output)
 	
 	def testEqLong(self):
 		output = """
@@ -203,6 +243,19 @@ class SymbolTests(OutputTests):
 		"""
 		
 		self.validateXMLTree("10! - n = 11*b", output)
+	
+	def testCup(self):
+		output = """
+			<blahtex>
+			<mathml>
+			<markup>
+			<mrow><mo stretchy="false">|</mo><mi>A</mi><mo>&#x222A;</mo><mi>B</mi><mo>&#x222A;</mo><mi>C</mi><mo stretchy="false">|</mo><mo>=</mo><mo stretchy="false">|</mo><mi>A</mi><mo stretchy="false">|</mo><mo>+</mo><mo stretchy="false">|</mo><mi>B</mi><mo stretchy="false">|</mo><mo>+</mo><mo stretchy="false">|</mo><mi>C</mi><mo stretchy="false">|</mo><mo>-</mo><mo stretchy="false">|</mo><mi>A</mi><mo>&#x2229;</mo><mi>B</mi><mo stretchy="false">|</mo><mo>-</mo><mo stretchy="false">|</mo><mi>B</mi><mo>&#x2229;</mo><mi>C</mi><mo stretchy="false">|</mo><mo>-</mo><mo stretchy="false">|</mo><mi>A</mi><mo>&#x2229;</mo><mi>C</mi><mo stretchy="false">|</mo><mo>+</mo><mo stretchy="false">|</mo><mi>A</mi><mo>&#x2229;</mo><mi>B</mi><mo>&#x2229;</mo><mi>C</mi><mo stretchy="false">|</mo></mrow>
+			</markup>
+			</mathml>
+			</blahtex>
+		"""
+		
+		self.validateXMLTree("| A \cup B \cup C | = | A | + | B | + | C | - | A \cap B | - | B \cap C | - | A \cap C | + | A \cap B \cap C |", output)
 
 
 class VariableTests(OutputTests):
