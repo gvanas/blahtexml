@@ -114,13 +114,13 @@ $(BINDIR_XMLIN)/%.o:%.c
 	$(CC) $(INCLUDES) $(CFLAGS) -DBLAHTEXML_USING_XERCES -c $< -o $@
 
 blahtex-linux:  $(BINDIR) $(OBJECTS)  $(HEADERS)
-	$(CXX) $(CFLAGS) -o blahtex $(OBJECTS)
+	$(CXX) $(CFLAGS) -o blahtex $(OBJECTS) -liconv
 
 blahtex-mac: $(BINDIR) $(OBJECTS)  $(HEADERS)
 	$(CXX) $(CFLAGS) -o blahtex -liconv $(OBJECTS)
 
 blahtexml-linux:  $(BINDIR_XMLIN) $(OBJECTS_XMLIN)  $(HEADERS_XMLIN)
-	$(CXX) $(CFLAGS) -o blahtexml $(OBJECTS_XMLIN) -lxerces-c
+	$(CXX) $(CFLAGS) -o blahtexml $(OBJECTS_XMLIN) -lxerces-c -liconv
 
 blahtexml-mac: $(BINDIR_XMLIN) $(OBJECTS_XMLIN)  $(HEADERS_XMLIN)
 	$(CXX) $(CFLAGS) -o blahtexml -liconv $(OBJECTS_XMLIN) -lxerces-c
