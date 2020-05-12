@@ -50,7 +50,7 @@ SOURCES_XMLIN = $(SOURCES) \
 	Source/BlahtexXMLin/BlahtexFilter.cpp \
 	Source/BlahtexXMLin/SAX2Output.cpp \
 	Source/BlahtexXMLin/XercesString.cpp
-	
+
 HEADERS = \
 	Source/mainPng.h \
 	Source/md5.h \
@@ -97,7 +97,7 @@ $(BINDIR)/InputSymbolTranslation.o: InputSymbolTranslation.cpp InputSymbolTransl
 
 $(BINDIR_XMLIN)/InputSymbolTranslation.o: InputSymbolTranslation.cpp InputSymbolTranslation.inc
 
-CFLAGS = -O2
+CFLAGS = -O2 -DWCHAR_T_IS_16BIT
 
 VPATH = Source:Source/BlahtexCore:Source/BlahtexXMLin
 

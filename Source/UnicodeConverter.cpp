@@ -39,10 +39,17 @@ void UnicodeConverter::Open()
             "UnicodeConverter::Open called on already open object"
         );
 
+#ifdef WCHAR_T_IS_16BIT
+    if (sizeof(wchar_t) != 2)
+        throw runtime_error(
+            "The wchar_t data type on this system is not two bytes wide"
+        );
+#else
     if (sizeof(wchar_t) != 4)
         throw runtime_error(
             "The wchar_t data type on this system is not four bytes wide"
         );
+#endif
 
     // Determine endian-ness of wchar_t.
     // (Really we should be able to just use "WCHAR_T". This unfortunately
@@ -50,7 +57,11 @@ void UnicodeConverter::Open()
     wchar_t testChar = L'A';
     const char* UcsString =
         (*(reinterpret_cast<char*>(&testChar)) == 'A')
+#ifdef WCHAR_T_IS_16BIT
+            ? "UTF-16LE" : "UTF-16BE";
+#else
             ? "UCS-4LE" : "UCS-4BE";
+#endif
 
     mInHandle = iconv_open(UcsString, "UTF-8");
     if (mInHandle == (iconv_t)(-1))
@@ -122,7 +133,7 @@ wstring UnicodeConverter::ConvertIn(const string& input)
     char* inputBuf  = new char[input.size()];
     memcpy(inputBuf, input.c_str(), input.size());
 
-    char* outputBuf = new char[input.size() * 4];
+    char* outputBuf = new char[input.size() * sizeof(wchar_t)];
 
     // The following garbage is needed to handle the unfortunate
     // inconsistency between Linux and BSD definitions for the second
@@ -136,7 +147,7 @@ wstring UnicodeConverter::ConvertIn(const string& input)
     char* dest = outputBuf;
 
     size_t  inBytesLeft = input.size();
-    size_t outBytesLeft = input.size() * 4;
+    size_t outBytesLeft = input.size() * sizeof(wchar_t);
 
     if (iconv(
         mInHandle,
@@ -161,7 +172,7 @@ wstring UnicodeConverter::ConvertIn(const string& input)
 
     wstring output(
         reinterpret_cast<wchar_t*>(outputBuf),
-        input.size() - outBytesLeft / 4
+        input.size() - outBytesLeft / sizeof(wchar_t)
     );
     delete[] inputBuf;
     delete[] outputBuf;
@@ -179,7 +190,7 @@ string UnicodeConverter::ConvertOut(const wstring& input)
     wchar_t* inputBuf = new wchar_t[input.size()];
     wmemcpy(inputBuf, input.c_str(), input.size());
 
-    char* outputBuf = new char[input.size() * 4];
+    char* outputBuf = new char[input.size() * sizeof(wchar_t)];
 
 #ifdef BLAHTEX_ICONV_CONST
     const
@@ -187,8 +198,8 @@ string UnicodeConverter::ConvertOut(const wstring& input)
     char* source = reinterpret_cast<char*>(inputBuf);
     char* dest = outputBuf;
 
-    size_t  inBytesLeft = input.size() * 4;
-    size_t outBytesLeft = input.size() * 4;
+    size_t  inBytesLeft = input.size() * sizeof(wchar_t);
+    size_t outBytesLeft = input.size() * sizeof(wchar_t);
 
     if (iconv(
         mOutHandle,
@@ -211,7 +222,7 @@ string UnicodeConverter::ConvertOut(const wstring& input)
         }
     }
 
-    string output(outputBuf, input.size() * 4 - outBytesLeft);
+    string output(outputBuf, input.size() * sizeof(wchar_t) - outBytesLeft);
     delete[] inputBuf;
     delete[] outputBuf;
     return output;

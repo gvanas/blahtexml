@@ -22,6 +22,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <list>
 #include <set>
 #include <map>
+#include <stdint.h>
 #include "MathmlNode.h"
 #include "LayoutTree.h"
 
@@ -495,30 +496,30 @@ auto_ptr<MathmlNode> Row::BuildMathmlTree(
 //
 // For example, the double-struck "C" (&Copf;) should be at U+1D53A, but for
 // historical reasons it ended up at U+2102.
-wchar_t FixOutOfSequenceMathmlCharacter(wchar_t c)
+uint32_t FixOutOfSequenceMathmlCharacter(uint32_t c)
 {
     switch (c)
     {
-        case L'\U0001D49D':   return L'\U0000212C';    // script B
-        case L'\U0001D4A0':   return L'\U00002130';    // script E
-        case L'\U0001D4A1':   return L'\U00002131';    // script F
-        case L'\U0001D4A3':   return L'\U0000210B';    // script H
-        case L'\U0001D4A4':   return L'\U00002110';    // script I
-        case L'\U0001D4A7':   return L'\U00002112';    // script L
-        case L'\U0001D4A8':   return L'\U00002133';    // script M
-        case L'\U0001D4AD':   return L'\U0000211B';    // script R
-        case L'\U0001D53A':   return L'\U00002102';    // double struck C
-        case L'\U0001D53F':   return L'\U0000210D';    // double struck H
-        case L'\U0001D545':   return L'\U00002115';    // double struck N
-        case L'\U0001D547':   return L'\U00002119';    // double struck P
-        case L'\U0001D548':   return L'\U0000211A';    // double struck Q
-        case L'\U0001D549':   return L'\U0000211D';    // double struck R
-        case L'\U0001D551':   return L'\U00002124';    // double struck Z
-        case L'\U0001D506':   return L'\U0000212D';    // fraktur C
-        case L'\U0001D50B':   return L'\U0000210C';    // fraktur H
-        case L'\U0001D50C':   return L'\U00002111';    // fraktur I
-        case L'\U0001D515':   return L'\U0000211C';    // fraktur R
-        case L'\U0001D51D':   return L'\U00002128';    // fraktur Z
+        case 0x0001D49D:   return 0x0000212C;    // script B
+        case 0x0001D4A0:   return 0x00002130;    // script E
+        case 0x0001D4A1:   return 0x00002131;    // script F
+        case 0x0001D4A3:   return 0x0000210B;    // script H
+        case 0x0001D4A4:   return 0x00002110;    // script I
+        case 0x0001D4A7:   return 0x00002112;    // script L
+        case 0x0001D4A8:   return 0x00002133;    // script M
+        case 0x0001D4AD:   return 0x0000211B;    // script R
+        case 0x0001D53A:   return 0x00002102;    // double struck C
+        case 0x0001D53F:   return 0x0000210D;    // double struck H
+        case 0x0001D545:   return 0x00002115;    // double struck N
+        case 0x0001D547:   return 0x00002119;    // double struck P
+        case 0x0001D548:   return 0x0000211A;    // double struck Q
+        case 0x0001D549:   return 0x0000211D;    // double struck R
+        case 0x0001D551:   return 0x00002124;    // double struck Z
+        case 0x0001D506:   return 0x0000212D;    // fraktur C
+        case 0x0001D50B:   return 0x0000210C;    // fraktur H
+        case 0x0001D50C:   return 0x00002111;    // fraktur I
+        case 0x0001D515:   return 0x0000211C;    // fraktur R
+        case 0x0001D51D:   return 0x00002128;    // fraktur Z
     }
 
     return c;
@@ -555,18 +556,18 @@ auto_ptr<MathmlNode> SymbolIdentifier::BuildMathmlTree(
                 "SymbolIdentifier::BuildMathmlTree()"
             );
         
-        wchar_t replacement = 0;
+        uint32_t replacement = 0;
 
         // These hold the explicit characters for "A" and "a" in the
         // desired font (or zero if unavailable)
-        wchar_t baseUppercase = 0, baseLowercase = 0;
+        uint32_t baseUppercase = 0, baseLowercase = 0;
 
         switch (mFont)
         {
             case cMathmlFontBoldScript:
                 if (options.mAllowPlane1)
                 {
-                    baseUppercase = L'\U0001D4D0';
+                    baseUppercase = 0x0001D4D0;
                     break;
                 }
                 else
@@ -578,19 +579,19 @@ auto_ptr<MathmlNode> SymbolIdentifier::BuildMathmlTree(
                     // script capitals.
                     node->mAttributes
                         [MathmlNode::cAttributeFontweight] = L"bold";
-                    baseUppercase = L'\U0001D49C';
+                    baseUppercase = 0x0001D49C;
                     break;
                 }
 
             case cMathmlFontScript:
-                baseUppercase = L'\U0001D49C';
+                baseUppercase = 0x0001D49C;
                 break;
 
             case cMathmlFontBoldFraktur:
                 if (options.mAllowPlane1)
                 {
-                    baseUppercase = L'\U0001D56C';
-                    baseLowercase = L'\U0001D586';
+                    baseUppercase = 0x0001D56C;
+                    baseLowercase = 0x0001D586;
                     break;
                 }
                 else
@@ -598,18 +599,18 @@ auto_ptr<MathmlNode> SymbolIdentifier::BuildMathmlTree(
                     // See comments above under cMathmlFontBoldScript
                     node->mAttributes
                         [MathmlNode::cAttributeFontweight] = L"bold";
-                    baseUppercase = L'\U0001D504';
-                    baseLowercase = L'\U0001D51E';
+                    baseUppercase = 0x0001D504;
+                    baseLowercase = 0x0001D51E;
                     break;
                 }
 
             case cMathmlFontFraktur:
-                baseUppercase = L'\U0001D504';
-                baseLowercase = L'\U0001D51E';
+                baseUppercase = 0x0001D504;
+                baseLowercase = 0x0001D51E;
                 break;
 
             case cMathmlFontDoubleStruck:
-                baseUppercase = L'\U0001D538';
+                baseUppercase = 0x0001D538;
                 break;
         }
 
@@ -624,8 +625,20 @@ auto_ptr<MathmlNode> SymbolIdentifier::BuildMathmlTree(
                 "SymbolIdentifier::BuildMathmlTree()"
             );
 
-        node->mText =
-            wstring(1, FixOutOfSequenceMathmlCharacter(replacement));
+        uint32_t chara = FixOutOfSequenceMathmlCharacter(replacement);
+#ifdef WCHAR_T_IS_16BIT
+        if (chara < 0x10000) {
+            node->mText = wstring(1, (wchar_t)chara);
+        }
+        else {
+            wchar_t buf[2];
+            buf[0] = 0xD800 | ((chara >> 10) - 0x400);
+            buf[1] = 0xDC00 | (chara & 0x3FF);
+            node->mText = wstring(buf, 2);
+        }
+#else
+        node->mText = wstring(1, (wchar_t)chara);
+#endif
 
         return AdjustMathmlEnvironment(
             node,
