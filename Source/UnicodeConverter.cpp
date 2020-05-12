@@ -146,21 +146,28 @@ wstring UnicodeConverter::ConvertIn(const string& input)
     char* outputBuf = new char[input.size() * 4];
 
 #ifdef WIN32_CODECONV
-    int outputNum = ::MultiByteToWideChar(
-	CP_UTF8, MB_PRECOMPOSED|MB_ERR_INVALID_CHARS,
-	inputBuf, input.size(),
-	reinterpret_cast<wchar_t *>(outputBuf), input.size() * 4);
-    if (outputNum == 0) {
-        delete[] inputBuf;
-        delete[] outputBuf;
-        switch (::GetLastError())
+    int outputNum = 0;
+    if (input.size() > 0)
+    {
+        outputNum = ::MultiByteToWideChar(
+            CP_UTF8, MB_PRECOMPOSED|MB_ERR_INVALID_CHARS,
+            inputBuf, input.size(),
+            reinterpret_cast<wchar_t *>(outputBuf),
+            input.size() * 4/sizeof(wchar_t));
+
+        if (outputNum == 0)
         {
-            case ERROR_NO_UNICODE_TRANSLATION:
-                throw UnicodeConverter::Exception();
-            default:
-                throw logic_error(
-                    "Conversion problem in UnicodeConverter::ConvertIn"
-                );
+            delete[] inputBuf;
+            delete[] outputBuf;
+            switch (::GetLastError())
+            {
+                case ERROR_NO_UNICODE_TRANSLATION:
+                    throw UnicodeConverter::Exception();
+                default:
+                    throw logic_error(
+                        "Conversion problem in UnicodeConverter::ConvertIn"
+                    );
+            }
         }
     }
     wstring output(
@@ -224,21 +231,26 @@ string UnicodeConverter::ConvertOut(const wstring& input)
     wchar_t* inputBuf = new wchar_t[input.size()];
     wmemcpy(inputBuf, input.c_str(), input.size());
 
-    char* outputBuf = new char[input.size() * 4];
+    char* outputBuf = new char[input.size() * 8];
 
 #ifdef WIN32_CODECONV
-    int outputNum = ::WideCharToMultiByte(
-        CP_UTF8, WC_SEPCHARS,
-	inputBuf, input.size(),
-	outputBuf, input.size() * 4,
-	NULL, NULL);
+    int outputNum = 0;
+    if (input.size() > 0)
+    {
+        outputNum = ::WideCharToMultiByte(
+            CP_UTF8, 0,
+            inputBuf, input.size(),
+            outputBuf, input.size() * 8,
+            NULL, NULL);
                           
-    if (outputNum == 0) {
-        delete[] inputBuf;
-        delete[] outputBuf;
-        throw logic_error(
-            "Conversion problem in UnicodeConverter::ConvertOut"
-        );
+        if (outputNum == 0)
+        {
+            delete[] inputBuf;
+            delete[] outputBuf;
+            throw logic_error(
+                "Conversion problem in UnicodeConverter::ConvertOut"
+            );
+        }
     }
     string output(outputBuf, outputNum);
 #else /* !WIN32_CODECONV */
