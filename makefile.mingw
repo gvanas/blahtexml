@@ -18,6 +18,7 @@
 
 CC = i686-w64-mingw32-gcc
 CXX = i686-w64-mingw32-g++
+STRIP = i686-w64-mingw32-strip
 
 help:
 	@echo "Type 'make doc' to make the documentation"
@@ -115,10 +116,12 @@ $(BINDIR_XMLIN)/%.o:%.c
 	$(CC) $(INCLUDES) $(CFLAGS) -DBLAHTEXML_USING_XERCES -c $< -o $@
 
 blahtex-mingw:  $(BINDIR) $(OBJECTS)  $(HEADERS)
-	$(CXX) $(CFLAGS) -o blahtex -static $(OBJECTS)
+	$(CXX) $(CFLAGS) -o blahtex.exe -static $(OBJECTS)
+	$(STRIP) -g blahtex.exe
 
 blahtexml-mingw:  $(BINDIR_XMLIN) $(OBJECTS_XMLIN)  $(HEADERS_XMLIN)
-	$(CXX) $(CFLAGS) -o blahtexml -static $(OBJECTS_XMLIN) -lxerces-c
+	$(CXX) $(CFLAGS) -o blahtexml.exe -static $(OBJECTS_XMLIN) -lxerces-c
+	$(STRIP) -g blahtexml.exe
 
 clean:
 	rm -f blahtex $(OBJECTS) blahtexml $(OBJECTS_XMLIN)
