@@ -1,0 +1,10 @@
+/Documentation/*.aux
+/Documentation/*.log
+/Documentation/*.out
+/Documentation/*.pdf
+/bin-blahtex/
+/bin-blahtexml/
+blahtex
+blahtex.exe
+blahtexml
+blahtexml.exe
