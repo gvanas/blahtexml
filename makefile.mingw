@@ -116,10 +116,10 @@ $(BINDIR_XMLIN)/%.o:%.c
 	$(CC) $(INCLUDES) $(CFLAGS) -DBLAHTEXML_USING_XERCES -c $< -o $@
 
 blahtex-mingw:  $(BINDIR) $(OBJECTS)  $(HEADERS)
-	$(CXX) $(CFLAGS) -o blahtex $(OBJECTS) $(ICONV_PREFIX)/lib/libiconv.a
+	$(CXX) $(CFLAGS) -o blahtex -static $(OBJECTS) $(ICONV_PREFIX)/lib/libiconv.a
 
 blahtexml-mingw:  $(BINDIR_XMLIN) $(OBJECTS_XMLIN)  $(HEADERS_XMLIN)
-	$(CXX) $(CFLAGS) -o blahtexml $(OBJECTS_XMLIN) -lxerces-c
+	$(CXX) $(CFLAGS) -o blahtexml -static $(OBJECTS_XMLIN) -lxerces-c
 
 clean:
 	rm -f blahtex $(OBJECTS) blahtexml $(OBJECTS_XMLIN)
