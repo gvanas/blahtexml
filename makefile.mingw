@@ -17,8 +17,7 @@
 .PHONY: help
 
 CC = i686-w64-mingw32-gcc
-CXX = i686-w64-mingw32-g++ -std=gnu++03
-ICONV_PREFIX ?= /usr/cross
+CXX = i686-w64-mingw32-g++
 
 help:
 	@echo "Type 'make doc' to make the documentation"
@@ -97,11 +96,11 @@ $(BINDIR)/InputSymbolTranslation.o: InputSymbolTranslation.cpp InputSymbolTransl
 
 $(BINDIR_XMLIN)/InputSymbolTranslation.o: InputSymbolTranslation.cpp InputSymbolTranslation.inc
 
-CFLAGS = -O2 -DWCHAR_T_IS_16BIT
+CFLAGS = -O2 -DWCHAR_T_IS_16BIT -DWIN32_CODECONV -Wno-deprecated-declarations
 
 VPATH = Source:Source/BlahtexCore:Source/BlahtexXMLin
 
-INCLUDES=-I. -ISource -ISource/BlahtexCore -ISource/BlahtexXMLin -I$(ICONV_PREFIX)/include
+INCLUDES=-I. -ISource -ISource/BlahtexCore -ISource/BlahtexXMLin
 
 $(BINDIR)/%.o:%.cpp
 	$(CXX) $(INCLUDES) $(CFLAGS) -c $< -o $@
@@ -116,7 +115,7 @@ $(BINDIR_XMLIN)/%.o:%.c
 	$(CC) $(INCLUDES) $(CFLAGS) -DBLAHTEXML_USING_XERCES -c $< -o $@
 
 blahtex-mingw:  $(BINDIR) $(OBJECTS)  $(HEADERS)
-	$(CXX) $(CFLAGS) -o blahtex -static $(OBJECTS) $(ICONV_PREFIX)/lib/libiconv.a
+	$(CXX) $(CFLAGS) -o blahtex -static $(OBJECTS)
 
 blahtexml-mingw:  $(BINDIR_XMLIN) $(OBJECTS_XMLIN)  $(HEADERS_XMLIN)
 	$(CXX) $(CFLAGS) -o blahtexml -static $(OBJECTS_XMLIN) -lxerces-c

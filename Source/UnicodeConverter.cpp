@@ -21,15 +21,24 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #include <string.h>
 #include <cerrno>
 
+#ifdef WIN32_CODECONV
+#include <windows.h>
+#ifndef WCHAR_T_IS_16BIT
+#error WIN32_CODECONV needs WCHAR_T_IS_16BIT option
+#endif
+#endif
+
 using namespace std;
 
 UnicodeConverter::~UnicodeConverter()
 {
+#ifndef WIN32_CODECONV
     if (mIsOpen)
     {
         iconv_close(mInHandle);
         iconv_close(mOutHandle);
     }
+#endif
 }
 
 void UnicodeConverter::Open()
@@ -51,6 +60,7 @@ void UnicodeConverter::Open()
         );
 #endif
 
+#ifndef WIN32_CODECONV
     // Determine endian-ness of wchar_t.
     // (Really we should be able to just use "WCHAR_T". This unfortunately
     // doesn't seem to available on darwin.)
@@ -118,7 +128,7 @@ void UnicodeConverter::Open()
                 );
         }
     }
-
+#endif
     mIsOpen = true;
 }
 
@@ -133,8 +143,31 @@ wstring UnicodeConverter::ConvertIn(const string& input)
     char* inputBuf  = new char[input.size()];
     memcpy(inputBuf, input.c_str(), input.size());
 
-    char* outputBuf = new char[input.size() * sizeof(wchar_t)];
+    char* outputBuf = new char[input.size() * 4];
 
+#ifdef WIN32_CODECONV
+    int outputNum = ::MultiByteToWideChar(
+	CP_UTF8, MB_PRECOMPOSED|MB_ERR_INVALID_CHARS,
+	inputBuf, input.size(),
+	reinterpret_cast<wchar_t *>(outputBuf), input.size() * 4);
+    if (outputNum == 0) {
+        delete[] inputBuf;
+        delete[] outputBuf;
+        switch (::GetLastError())
+        {
+            case ERROR_NO_UNICODE_TRANSLATION:
+                throw UnicodeConverter::Exception();
+            default:
+                throw logic_error(
+                    "Conversion problem in UnicodeConverter::ConvertIn"
+                );
+        }
+    }
+    wstring output(
+        reinterpret_cast<wchar_t*>(outputBuf),
+        outputNum
+    );
+#else /* !WIN32_CODECONV */
     // The following garbage is needed to handle the unfortunate
     // inconsistency between Linux and BSD definitions for the second
     // parameter of iconv. BSD (including Mac OS X) requires const char*,
@@ -147,7 +180,7 @@ wstring UnicodeConverter::ConvertIn(const string& input)
     char* dest = outputBuf;
 
     size_t  inBytesLeft = input.size();
-    size_t outBytesLeft = input.size() * sizeof(wchar_t);
+    size_t outBytesLeft = input.size() * 4;
 
     if (iconv(
         mInHandle,
@@ -169,11 +202,12 @@ wstring UnicodeConverter::ConvertIn(const string& input)
                 );
         }
     }
-
+    
     wstring output(
         reinterpret_cast<wchar_t*>(outputBuf),
-        input.size() - outBytesLeft / sizeof(wchar_t)
+        input.size() - outBytesLeft / 4
     );
+#endif
     delete[] inputBuf;
     delete[] outputBuf;
     return output;
@@ -190,16 +224,33 @@ string UnicodeConverter::ConvertOut(const wstring& input)
     wchar_t* inputBuf = new wchar_t[input.size()];
     wmemcpy(inputBuf, input.c_str(), input.size());
 
-    char* outputBuf = new char[input.size() * sizeof(wchar_t)];
+    char* outputBuf = new char[input.size() * 4];
 
+#ifdef WIN32_CODECONV
+    int outputNum = ::WideCharToMultiByte(
+        CP_UTF8, WC_SEPCHARS,
+	inputBuf, input.size(),
+	outputBuf, input.size() * 4,
+	NULL, NULL);
+                          
+    if (outputNum == 0) {
+        delete[] inputBuf;
+        delete[] outputBuf;
+        throw logic_error(
+            "Conversion problem in UnicodeConverter::ConvertOut"
+        );
+    }
+    string output(outputBuf, outputNum);
+#else /* !WIN32_CODECONV */
+    
 #ifdef BLAHTEX_ICONV_CONST
     const
 #endif
     char* source = reinterpret_cast<char*>(inputBuf);
     char* dest = outputBuf;
 
-    size_t  inBytesLeft = input.size() * sizeof(wchar_t);
-    size_t outBytesLeft = input.size() * sizeof(wchar_t);
+    size_t  inBytesLeft = input.size() * 4;
+    size_t outBytesLeft = input.size() * 4;
 
     if (iconv(
         mOutHandle,
@@ -217,12 +268,13 @@ string UnicodeConverter::ConvertOut(const wstring& input)
             case EINVAL:    throw UnicodeConverter::Exception();
             default:
                 throw logic_error(
-                    "Conversion problem in UnicodeConverter::ConvertIn"
+                    "Conversion problem in UnicodeConverter::ConvertOut"
                 );
         }
     }
 
-    string output(outputBuf, input.size() * sizeof(wchar_t) - outBytesLeft);
+    string output(outputBuf, input.size() * 4 - outBytesLeft);
+#endif
     delete[] inputBuf;
     delete[] outputBuf;
     return output;

@@ -19,7 +19,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 #define BLAHTEX_UNICODE_CONVERTER_H
 
 #include <string>
+#ifndef WIN32_CODECONV
 #include <iconv.h>
+#endif
 
 // UnicodeConverter handles all UTF8 <=> wchar_t conversions. It's
 // basically a wrapper for the iconv library in terms of
@@ -56,10 +58,12 @@ class UnicodeConverter
     private:
         bool mIsOpen;
 
+#ifndef WIN32_CODECONV
         // mOutHandle is the iconv object handling wchar_t => UTF-8,
         // mInHandle does the other way.
         iconv_t mOutHandle;
         iconv_t mInHandle;
+#endif
 };
 
 #endif
