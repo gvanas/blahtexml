@@ -15,6 +15,7 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <iterator>
 #include "MacroProcessor.h"
 
 using namespace std;
@@ -223,7 +224,9 @@ Token & MacroProcessor::Peek()
             {
                 mTokens[mBackIndex].setValue(L"{");
 
+#ifndef _MSC_VER
 #warning TODO: test this
+#endif
 				vector<Token>::iterator ptr = mTokens.begin() + mBackIndex + 1;
 
                 int braceDepth = 0;
@@ -247,7 +250,9 @@ Token & MacroProcessor::Peek()
                     throw Exception(L"NotEnoughArguments", L"\\sqrt");
                 (*ptr).setValue(L"}");
 				
+#ifndef _MSC_VER
 #warning TODO: actually store the token range and test this
+#endif
 				mTokens.insert(mTokens.begin() + (mBackIndex + 1), Token(L"\\rootReserved", 0, 0));
 				mBackIndex++;
                 mIsTokenReady = true;
@@ -256,7 +261,9 @@ Token & MacroProcessor::Peek()
             }
             else
             {
+#ifndef _MSC_VER
 #warning TODO: actually store the token range and test this
+#endif
 				mTokens.insert(mTokens.begin() + (mBackIndex + 1), Token(L"\\sqrt", 0, 0));
 				mBackIndex++;
                 mIsTokenReady = true;
@@ -337,7 +344,9 @@ Token & MacroProcessor::Peek()
                     output.push_back(*source);
             }
 			
+#ifndef _MSC_VER
 #warning TODO: include token ranges
+#endif
 			for(vector<wstring>::reverse_iterator iter = output.rbegin(); iter != output.rend(); ++iter)
 			{
 				mTokens.insert(mTokens.begin() + mBackIndex + 1, Token(*iter, 0, 0));
