@@ -632,7 +632,7 @@ auto_ptr<MathmlNode> SymbolIdentifier::BuildMathmlTree(
         }
         else {
             wchar_t buf[2];
-            buf[0] = 0xD800 | ((chara >> 10) - 0x400);
+            buf[0] = (0xD800 | (chara >> 10)) - 0x0040;
             buf[1] = 0xDC00 | (chara & 0x3FF);
             node->mText = wstring(buf, 2);
         }
