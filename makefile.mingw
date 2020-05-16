@@ -116,11 +116,11 @@ $(BINDIR_XMLIN)/%.o:%.c
 	$(CC) $(INCLUDES) $(CFLAGS) -DBLAHTEXML_USING_XERCES -c $< -o $@
 
 blahtex-mingw:  $(BINDIR) $(OBJECTS)  $(HEADERS)
-	$(CXX) $(CFLAGS) -o blahtex.exe -static $(OBJECTS)
+	$(CXX) $(CFLAGS) -o blahtex.exe $(OBJECTS)
 	$(STRIP) -g blahtex.exe
 
 blahtexml-mingw:  $(BINDIR_XMLIN) $(OBJECTS_XMLIN)  $(HEADERS_XMLIN)
-	$(CXX) $(CFLAGS) -o blahtexml.exe -static $(OBJECTS_XMLIN) -lxerces-c
+	$(CXX) $(CFLAGS) -o blahtexml.exe $(OBJECTS_XMLIN) -lxerces-c
 	$(STRIP) -g blahtexml.exe
 
 clean:

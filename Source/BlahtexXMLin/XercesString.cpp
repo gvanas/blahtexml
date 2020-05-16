@@ -39,6 +39,11 @@ XercesString::XercesString(const char *s)
 XercesString::XercesString(const wstring& in)
     : basic_string<XMLCh>()
 {
+#ifdef WCHAR_T_IS_16BIT
+    for(unsigned int i=0; i<in.length(); ++i) {
+        push_back(in[i]);
+    }
+#else /* !WCHAR_T_IS_16BIT */
     for(unsigned int i=0; i<in.length(); ++i) {
         wchar_t utf32 = in[i];
         if (utf32 >= 0x10000UL) {
@@ -48,11 +53,17 @@ XercesString::XercesString(const wstring& in)
         else
             push_back(utf32);
     }
+#endif /* WCHAR_T_IS_16BIT */
 }
 
 wstring XercesString::convertTowstring()
 {
     wstring out;
+#ifdef WCHAR_T_IS_16BIT
+    for(unsigned int i=0; i<length(); ++i) {
+        out.push_back(at(i));
+    }
+#else /* !WCHAR_T_IS_16BIT */
     wchar_t ucs4;
     bool firstSurrogate = false;
     for(unsigned int i=0; i<length(); ++i) {
@@ -74,6 +85,7 @@ wstring XercesString::convertTowstring()
             out.push_back(utf16);
         }
     }
+#endif /* WCHAR_T_IS_16BIT */
     return out;
 }
 
