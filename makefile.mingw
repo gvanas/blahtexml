@@ -93,6 +93,9 @@ Source/BlahtexCore/InputSymbolTranslation.inc: Source/BlahtexCore/InputSymbolTra
 
 Source/BlahtexCore/InputSymbolTranslation.cpp: Source/BlahtexCore/InputSymbolTranslation.inc
 
+$(OBJECTS): $(BINDIR)
+$(OBJECTS_XMLIN): $(BINDIR_XMLIN)
+
 $(BINDIR)/InputSymbolTranslation.o: InputSymbolTranslation.cpp InputSymbolTranslation.inc
 
 $(BINDIR_XMLIN)/InputSymbolTranslation.o: InputSymbolTranslation.cpp InputSymbolTranslation.inc
