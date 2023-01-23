@@ -255,11 +255,19 @@ auto_ptr<MathmlNode> Row::BuildMathmlTree(
     
     auto_ptr<MathmlNode> outputNode(new MathmlNode(MathmlNode::cTypeMrow));
     list<MathmlNode*>& outputList = outputNode->mChildren;
-        
+
     IncrementNodeCount(nodeCount);
-    
-    if (mChildren.empty())
-        return outputNode;
+
+    if (mChildren.empty()) {
+      return outputNode;
+    } else if (mChildren.front() == mChildren.back()) {
+      Node* node = mChildren.front();
+      Space* sourceAsSpace = dynamic_cast<Space*>(node);
+      if (sourceAsSpace) {
+        if (sourceAsSpace->mWidth == 0)
+          return outputNode;
+        }
+    }
 
     vector<MathmlEnvironment> environments;
 
