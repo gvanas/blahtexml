@@ -2,7 +2,7 @@
 
 % Copyright (c) 2006, David Harvey
 
-% Copyright (C) 2007-2010, Gilles Van Assche
+% Copyright (C) 2007-2023, Gilles Van Assche
 
 % The text of this manual is licensed under the
 % Creative Commons Attribution license
@@ -16,7 +16,7 @@
 \usepackage{longtable}
 \usepackage{amsmath, amssymb}
 
-\newcommand{\blahtexversion}{0.9}
+\newcommand{\blahtexversion}{1.0}
 \newcommand{\texcommand}[1]{\textbackslash{}#1}
 \newcommand{\mylink}[1]{\htmladdnormallink{\texttt{#1}}{#1}}
 
@@ -49,14 +49,14 @@
 
 {\footnotesize
 Copyright (c) 2006, David Harvey.
-Copyright (c) 2007-2010, Gilles Van Assche.
+Copyright (c) 2007-2023, Gilles Van Assche.
 The text of this manual is licensed under the \htmladdnormallink{Creative Commons Attribution license}{http://creativecommons.org/licenses/by/3.0/}.}
 
 \section{Introduction}
 
 This is the manual for blahtex and blahtexml version \blahtexversion. The most up-to-date information about blahtex and blahtexml is available at
 \begin{center}
-\htmladdnormallink{\texttt{http://gva.noekeon.org/blahtexml/}}{http://gva.noekeon.org/blahtexml/}.
+\url{https://github.com/gvanas/blahtexml}
 \end{center}
 
 \subsection{How this document is organised}
@@ -1541,7 +1541,7 @@ The simplest way to report the error to the user is to extract the \texttt{<mess
 
 \section{The blahtexml command-line application}\label{sec:blahtexml}
 
-The blahtexml source code is available from \texttt{http://gva.noekeon.org/blahtexml}.
+The blahtexml source code is available from \url{https://github.com/gvanas/blahtexml}.
 
 \subsection{System prerequisites}\label{sec:blahtexml-prerequisites}
 
@@ -1924,6 +1924,11 @@ The blahtex core is internally Unicode throughout, and works exclusively with wi
 \begin{itemize}
 \item The \texttt{--displaymath} option is now a general option, with an effect on MathML output (not only PNG).
 \item With \texttt{--xmlin}, block equations (i.e, \texttt{<math display="block">}) are set in display style.
+\end{itemize}
+\item Version blahtexml 1.0 (27/Mar/2023)
+\begin{itemize}
+\item Support for MinGW (thanks to Atsushi Muramatsu).
+\item Many bug fixes and improvements (thanks to Matt Rajca, Sergei Trofimovich and LdBeth).
 \end{itemize}
 \end{itemize}
 

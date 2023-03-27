@@ -49,7 +49,7 @@ using namespace blahtex;
 #include "BlahtexXMLin/SAX2Output.h"
 #endif
 
-string gBlahtexVersion = "0.9";
+string gBlahtexVersion = "1.0";
 
 // A single global instance of UnicodeConverter.
 UnicodeConverter gUnicodeConverter;
