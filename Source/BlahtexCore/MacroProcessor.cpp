@@ -227,7 +227,7 @@ Token & MacroProcessor::Peek()
 #ifndef _MSC_VER
 #warning TODO: test this
 #endif
-				vector<Token>::iterator ptr = mTokens.begin() + mBackIndex + 1;
+				vector<Token>::iterator ptr = mTokens.begin() + (mBackIndex - 1);//jump the replaced "{"
 
                 int braceDepth = 0;
                 while (ptr != mTokens.begin() &&
@@ -253,7 +253,7 @@ Token & MacroProcessor::Peek()
 #ifndef _MSC_VER
 #warning TODO: actually store the token range and test this
 #endif
-				mTokens.insert(mTokens.begin() + (mBackIndex + 1), Token(L"\\rootReserved", 0, 0));
+                mTokens[mBackIndex + 1] = Token(L"\\rootReserved", 0, 0);//replace the \sqltReserved with \rootReserved
 				mBackIndex++;
                 mIsTokenReady = true;
 				
@@ -349,7 +349,7 @@ Token & MacroProcessor::Peek()
 #endif
 			for(vector<wstring>::reverse_iterator iter = output.rbegin(); iter != output.rend(); ++iter)
 			{
-				mTokens.insert(mTokens.begin() + mBackIndex + 1, Token(*iter, 0, 0));
+				mTokens.insert(mTokens.begin() + (mBackIndex + 1), Token(*iter, 0, 0));
 				mBackIndex++;
 			}
 			
