@@ -105,28 +105,28 @@ VPATH = Source:Source/BlahtexCore:Source/BlahtexXMLin
 INCLUDES=-I. -ISource -ISource/BlahtexCore -ISource/BlahtexXMLin
 
 $(BINDIR)/%.o:%.cpp
-	$(CXX) $(INCLUDES) $(CFLAGS) -c $< -o $@
+	$(CXX) $(INCLUDES) $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(BINDIR)/%.o:%.c
-	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+	$(CC) $(INCLUDES) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(BINDIR_XMLIN)/%.o:%.cpp
-	$(CXX) $(INCLUDES) $(CFLAGS) -DBLAHTEXML_USING_XERCES -c $< -o $@
+	$(CXX) $(INCLUDES) $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -DBLAHTEXML_USING_XERCES -c $< -o $@
 
 $(BINDIR_XMLIN)/%.o:%.c
-	$(CC) $(INCLUDES) $(CFLAGS) -DBLAHTEXML_USING_XERCES -c $< -o $@
+	$(CC) $(INCLUDES) $(CFLAGS) $(CPPFLAGS) -DBLAHTEXML_USING_XERCES -c $< -o $@
 
 blahtex-linux:  $(BINDIR) $(OBJECTS)  $(HEADERS)
-	$(CXX) $(CFLAGS) -o blahtex $(OBJECTS)
+	$(CXX) $(CFLAGS) $(LDFLAGS) -o blahtex $(OBJECTS)
 
 blahtex-mac: $(BINDIR) $(OBJECTS)  $(HEADERS)
-	$(CXX) $(CFLAGS) -o blahtex -liconv $(OBJECTS)
+	$(CXX) $(CFLAGS) $(CXXFLAGS) -o blahtex -liconv $(OBJECTS)
 
 blahtexml-linux:  $(BINDIR_XMLIN) $(OBJECTS_XMLIN)  $(HEADERS_XMLIN)
-	$(CXX) $(CFLAGS) -o blahtexml $(OBJECTS_XMLIN) -lxerces-c
+	$(CXX) $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) -o blahtexml $(OBJECTS_XMLIN) -lxerces-c
 
 blahtexml-mac: $(BINDIR_XMLIN) $(OBJECTS_XMLIN)  $(HEADERS_XMLIN)
-	$(CXX) $(CFLAGS) -o blahtexml -liconv $(OBJECTS_XMLIN) -lxerces-c
+	$(CXX) $(CFLAGS) $(CXXFLAGS) -o blahtexml -liconv $(OBJECTS_XMLIN) -lxerces-c
 
 clean:
 	rm -f blahtex $(OBJECTS) blahtexml $(OBJECTS_XMLIN)
